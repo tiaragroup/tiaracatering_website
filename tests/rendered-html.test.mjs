@@ -35,6 +35,8 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.match(html, /href="tel:920005600"/);
   assert.match(html, /href="https:\/\/wa\.me\/966920020062"/);
   assert.doesNotMatch(html, /966112733888|11 273 3888/);
+  assert.match(html, /info@tiaracatering\.com/);
+  assert.match(html, /Abdullah Al-Ahwani, Al-Qirawan District, Riyadh 13531/);
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
 });
 
@@ -65,6 +67,8 @@ test("server-renders conversion-focused English and Arabic menu pages", async ()
   assert.match(english, /href="tel:920005600"/);
   assert.match(english, /href="https:\/\/wa\.me\/966920020062"/);
   assert.doesNotMatch(english, /966112733888|11 273 3888/);
+  assert.match(english, /Abdullah Al-Ahwani, Al-Qirawan District, Riyadh 13531/);
+  assert.match(arabic, /عبدالله الأحواني، حي القيروان، الرياض 13531/);
   assert.match(arabic, /x\.com\/Tiaracateriing/);
   assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
   assert.match(arabic, /القائمة الأولى/);

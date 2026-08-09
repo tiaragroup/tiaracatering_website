@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { CALL_DISPLAY, CALL_HREF, WHATSAPP_URL } from "../contact-details";
+import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, LOCATION_AR, LOCATION_EN, LOCATION_MAP_URL, WHATSAPP_URL } from "../contact-details";
 import { socialLinks } from "../social-links";
 import { menusAr, menusEn } from "./menu-data";
 
@@ -78,7 +78,7 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
     <section id="faq" className="menu-faq menu-section"><div><p className="menu-kicker">{t.faqTag}</p><h2>{t.faqTitle}</h2></div><div>{t.faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></section>
 
     <section className="menu-final"><img src="/images/cooking-classes-8.jpg" alt="" loading="lazy" /><div /><article><h2>{t.finalTitle}</h2><p>{t.finalBody}</p><div className="menu-actions"><a className="menu-pill gold" href="#quotation">{t.quote}<span>↗</span></a><a className="menu-text-link light" href={WHATSAPP_URL}>{t.chat}<span>↗</span></a></div></article></section>
-    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href="mailto:info@tiaracatering.com">info@tiaracatering.com</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}</div><small>{t.rights}</small></footer>
+    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}<a className="footer-address" href={LOCATION_MAP_URL} target="_blank" rel="noopener noreferrer">{lang === "ar" ? LOCATION_AR : LOCATION_EN}</a></div><small>{t.rights}</small></footer>
     <div className="mobile-menu-cta"><span><small>{menu.name}</small><b>{t.from} {menu.price}</b></span><a href="#quotation">{t.quote}</a></div>
   </main>;
 }
