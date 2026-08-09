@@ -17,6 +17,7 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   const html = await response.text();
   assert.match(html, /<title>Tiara Catering \| Luxury Catering in Riyadh<\/title>/i);
   assert.match(html, /Be a guest/);
+  assert.match(html, /A table that brings/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FoodService/);
   assert.match(html, /og\.png/);
@@ -34,6 +35,7 @@ test("server-renders a crawlable Arabic experience", async () => {
   const html = await response.text();
   assert.match(html, /تيارا للضيافة/);
   assert.match(html, /كن ضيفاً/);
+  assert.match(html, /مائدة تجمعكم/);
   assert.match(html, /تموين وضيافة فاخرة في الرياض/);
   assert.match(html, /content-language/);
   assert.doesNotMatch(html, /\?lang=ar/);
