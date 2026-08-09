@@ -130,7 +130,6 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
     </div>
 
     <footer className="site-footer"><div className="footer-brand"><img src="/tiara-logo.png" alt="Tiara Catering" /><p>{t.footerBody}</p></div><div><span>{lang === "ar" ? "تواصل" : "Connect"}</span>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}<a href="https://wa.me/966112733888">WhatsApp</a></div><div><span>{lang === "ar" ? "اكتشف" : "Explore"}</span>{t.nav.slice(0, 4).map(([label, href]) => <a href={href} key={href}>{label}</a>)}</div><small>{t.rights}</small></footer>
-    <a className="floating" href="https://wa.me/966112733888" aria-label={t.whatsapp}><i />{t.whatsapp}</a>
     {lightbox && <div className="lightbox" role="dialog" aria-modal="true" aria-label={t.galleryTag} onClick={() => setLightbox(null)}><button aria-label={t.close} onClick={() => setLightbox(null)}>×</button><img src={lightbox} alt="" /></div>}
   </main>;
 }

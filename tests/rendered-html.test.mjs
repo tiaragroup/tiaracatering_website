@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function render(path = "/") {
@@ -26,6 +27,11 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.match(html, /x\.com\/Tiaracateriing/);
   assert.match(html, /facebook\.com\/people\/Tiara-Catering/);
   assert.match(html, /instagram\.com\/tiara\.catering\.sa/);
+  assert.match(html, /bevatel-chat/);
+  const bevatelSource = await readFile(new URL("../app/bevatel-chat.tsx", import.meta.url), "utf8");
+  assert.match(bevatelSource, /chat\.bevatel\.com/);
+  assert.match(bevatelSource, /jt1XoePxNBfjVAcH3Yg2YNAW/);
+  assert.doesNotMatch(html, /class="floating"/);
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
 });
 
