@@ -34,3 +34,18 @@ test("server-renders a crawlable Arabic experience", async () => {
   assert.match(html, /content-language/);
   assert.doesNotMatch(html, /\?lang=ar/);
 });
+
+test("server-renders conversion-focused English and Arabic menu pages", async () => {
+  const [englishResponse, arabicResponse] = await Promise.all([render("/menus"), render("/ar/menus")]);
+  assert.equal(englishResponse.status, 200);
+  assert.equal(arabicResponse.status, 200);
+  const [english, arabic] = await Promise.all([englishResponse.text(), arabicResponse.text()]);
+  assert.match(english, /Catering Menus 2026 \| Tiara Catering Riyadh/);
+  assert.match(english, /Menu One/);
+  assert.match(english, /<span>SAR<\/span><strong>283<\/strong>/);
+  assert.match(english, /Request quotation/);
+  assert.match(english, /application\/ld\+json/);
+  assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
+  assert.match(arabic, /القائمة الأولى/);
+  assert.match(arabic, /اطلب عرض سعر/);
+});

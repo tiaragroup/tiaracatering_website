@@ -8,7 +8,7 @@ const gallery = ["7-1", "1", "3", "8", "2", "4", "6"].map((n) => `/images/cookin
 const copy = {
   en: {
     dir: "ltr", switchLabel: "العربية", switchHref: "/ar", menu: "Menu", close: "Close",
-    nav: [["About", "#about"], ["Services", "#services"], ["Gallery", "#gallery"], ["Houses", "#brands"], ["Contact", "#contact"]],
+    nav: [["About", "#about"], ["Services", "#services"], ["Menus", "/menus"], ["Gallery", "#gallery"], ["Houses", "#brands"], ["Contact", "#contact"]],
     quote: "Request a quote", eyebrow: "Culinary atelier · Riyadh",
     hero: ["Be a guest", "at your own", "celebration."],
     intro: "Family dinners, date nights, brunches, galas and weeklong menus — cooked, styled and served by a Riyadh kitchen where Saudi heritage meets modern craft.",
@@ -38,7 +38,7 @@ const copy = {
   },
   ar: {
     dir: "rtl", switchLabel: "EN", switchHref: "/", menu: "القائمة", close: "إغلاق",
-    nav: [["عن تيارا", "#about"], ["خدماتنا", "#services"], ["المعرض", "#gallery"], ["بيوتنا", "#brands"], ["تواصل معنا", "#contact"]],
+    nav: [["عن تيارا", "#about"], ["خدماتنا", "#services"], ["القوائم", "/ar/menus"], ["المعرض", "#gallery"], ["بيوتنا", "#brands"], ["تواصل معنا", "#contact"]],
     quote: "اطلب عرض سعر", eyebrow: "أتيليه الطهي · الرياض",
     hero: ["كن ضيفاً", "في مناسبتك", "الخاصة."],
     intro: "عشاء عائلي أو لقاء خاص أو حفل كبير — نطبخ وننسّق ونقدّم تجربة ضيافة يلتقي فيها الإرث السعودي بالحرفة الحديثة.",
