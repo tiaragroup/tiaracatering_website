@@ -4,6 +4,22 @@
     "cleanUrls": true,
     "trailingSlash": false,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "//": "Permanent redirects for the WordPress URLs that tiaracatering.com served before this site replaced it. Without these, every indexed page 404s at cutover. trailingSlash:false normalises /about/ to /about first, so only the extensionless form needs a rule.",
+    "redirects": [
+      { "source": "/about", "destination": "/#about", "type": 301 },
+      { "source": "/contact-us", "destination": "/#contact", "type": 301 },
+      { "source": "/catering", "destination": "/menus", "type": 301 },
+      { "source": "/menu", "destination": "/menus", "type": 301 },
+      { "source": "/services", "destination": "/#services", "type": 301 },
+      { "source": "/services/sample-menus", "destination": "/menus", "type": 301 },
+      { "source": "/services/catering-services", "destination": "/#services", "type": 301 },
+      { "source": "/services/cooking-classes", "destination": "/#services", "type": 301 },
+      { "source": "/services/corporate-events", "destination": "/#services", "type": 301 },
+      { "source": "/services/special-events", "destination": "/#services", "type": 301 },
+      { "source": "/services/table-ready-meals", "destination": "/#services", "type": 301 },
+      { "source": "/services/weddings-and-galas", "destination": "/#services", "type": 301 },
+      { "source": "/private-chef", "destination": "/#services", "type": 301 }
+    ],
     "headers": [
       {
         "//": "Pages are requested as extensionless clean URLs (/menus, /ar), so they cannot be matched by an *.html glob. Default everything to revalidate, then let the content-addressed rules below opt back into long caching.",
