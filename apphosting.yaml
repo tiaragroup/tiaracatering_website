@@ -1,0 +1,8 @@
+# Firebase App Hosting runtime settings.
+# The Next.js adapter detects and runs the package.json build/start scripts.
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512

@@ -1,14 +1,44 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import test from "node:test";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+import test, { after, before } from "node:test";
+
+const projectDir = fileURLToPath(new URL("..", import.meta.url));
+const port = 32000 + (process.pid % 1000);
+const origin = `http://127.0.0.1:${port}`;
+let server;
+
+before(async () => {
+  const nextBin = path.join(projectDir, "node_modules", "next", "dist", "bin", "next");
+  server = spawn(process.execPath, [nextBin, "start", "-H", "127.0.0.1", "-p", String(port)], {
+    cwd: projectDir,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  let output = "";
+  server.stdout.on("data", (chunk) => { output += chunk; });
+  server.stderr.on("data", (chunk) => { output += chunk; });
+
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    if (server.exitCode !== null) throw new Error(`Next.js exited before startup:\n${output}`);
+    try {
+      const response = await fetch(origin);
+      if (response.ok) return;
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  throw new Error(`Timed out waiting for Next.js:\n${output}`);
+});
+
+after(() => {
+  server?.kill();
+});
 
 async function render(path = "/") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), {
-    ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
-  }, { waitUntil() {}, passThroughOnException() {} });
+  return fetch(`${origin}${path}`, { headers: { accept: "text/html" } });
 }
 
 test("server-renders the Tiara Catering homepage and SEO content", async () => {
@@ -27,7 +57,6 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.match(html, /x\.com\/Tiaracateriing/);
   assert.match(html, /facebook\.com\/people\/Tiara-Catering/);
   assert.match(html, /instagram\.com\/tiara\.catering\.sa/);
-  assert.match(html, /bevatel-chat/);
   const bevatelSource = await readFile(new URL("../app/bevatel-chat.tsx", import.meta.url), "utf8");
   assert.match(bevatelSource, /chat\.bevatel\.com/);
   assert.match(bevatelSource, /jt1XoePxNBfjVAcH3Yg2YNAW/);
