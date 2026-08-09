@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { CALL_DISPLAY, CALL_HREF, WHATSAPP_URL } from "../contact-details";
 import { socialLinks } from "../social-links";
 import { menusAr, menusEn } from "./menu-data";
 
@@ -59,13 +60,13 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
     const lines = lang === "ar"
       ? ["طلب عرض سعر لقائمة تيارا ٢٠٢٦", `القائمة: ${menu.name} — ${menu.price} ر.س`, `عدد الضيوف: ${form.get("guests")}`, `التاريخ: ${form.get("date")}`, `نوع المناسبة: ${form.get("event")}`, `ملاحظات: ${form.get("note") || "-"}`]
       : ["Tiara Catering 2026 menu quotation request", `Menu: ${menu.name} — SAR ${menu.price}`, `Guests: ${form.get("guests")}`, `Date: ${form.get("date")}`, `Event: ${form.get("event")}`, `Notes: ${form.get("note") || "-"}`];
-    window.open(`https://wa.me/966112733888?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+    window.open(`${WHATSAPP_URL}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
   }
 
   return <main className={`menu-site ${lang}`} dir={t.dir}>
     <header className="menu-header"><a className="menu-brand" href={lang === "ar" ? "/ar" : "/"}><img src="/tiara-logo.png" alt="Tiara Catering" /></a><nav><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href="#collection">{t.explore}</a><a href="#faq">FAQ</a></nav><div><a className="menu-language" href={t.switchHref} hrefLang={lang === "ar" ? "en" : "ar"}>{t.switch}</a><a className="menu-pill dark" href="#quotation">{t.quote}<span>↗</span></a></div></header>
 
-    <section className="menu-hero"><div className="menu-hero-copy"><p className="menu-kicker">{t.eyebrow}</p><h1>{t.title}</h1><p>{t.lead}</p><div className="menu-actions"><a className="menu-pill dark" href="#collection">{t.explore}<span>↓</span></a><a className="menu-text-link" href="https://wa.me/966112733888">{t.chat}<span>↗</span></a></div><p className="menu-helper">{t.helper} <a href="https://wa.me/966112733888">{t.helperLink} →</a></p></div><div className="menu-hero-image"><img src="/images/cooking-classes-4.jpg" alt={lang === "ar" ? "مائدة ضيافة أنيقة من تيارا" : "Elegant Tiara Catering menu presentation"} fetchPriority="high" /><div className="menu-price-note"><small>{t.from}</small><strong>283</strong><span>{t.packageRate}</span></div></div></section>
+    <section className="menu-hero"><div className="menu-hero-copy"><p className="menu-kicker">{t.eyebrow}</p><h1>{t.title}</h1><p>{t.lead}</p><div className="menu-actions"><a className="menu-pill dark" href="#collection">{t.explore}<span>↓</span></a><a className="menu-text-link" href={WHATSAPP_URL}>{t.chat}<span>↗</span></a></div><p className="menu-helper">{t.helper} <a href={WHATSAPP_URL}>{t.helperLink} →</a></p></div><div className="menu-hero-image"><img src="/images/cooking-classes-4.jpg" alt={lang === "ar" ? "مائدة ضيافة أنيقة من تيارا" : "Elegant Tiara Catering menu presentation"} fetchPriority="high" /><div className="menu-price-note"><small>{t.from}</small><strong>283</strong><span>{t.packageRate}</span></div></div></section>
     <div className="menu-trust">{t.trust.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
 
     <section id="collection" className="menu-section menu-collection"><div className="menu-section-head"><div><p className="menu-kicker">{t.collectionTag}</p><h2>{t.collectionTitle}</h2></div><p>{t.collectionLead}</p></div><div className="package-grid">{menus.map((pkg, i) => <article className={`${selected === i ? "selected" : ""} ${i === 1 ? "featured" : ""}`} key={pkg.id}>{pkg.badge && <span className="package-badge">{lang === "ar" ? (i === 1 ? t.popular : t.signature) : pkg.badge}</span>}<small>0{i + 1}</small><h3>{pkg.name}</h3><div className="package-price"><span>{t.from}</span><strong>{pkg.price}</strong></div><p>{t.fit[i][0]}</p><span className="package-count">{t.fit[i][1]}</span><ul>{pkg.categories.map((category) => <li key={category.title}>{category.title}<span>{category.items.length}</span></li>)}</ul><button onClick={() => choose(i)}>{selected === i ? t.selected : t.view}<span>{selected === i ? "✓" : "→"}</span></button></article>)}</div></section>
@@ -76,8 +77,8 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
 
     <section id="faq" className="menu-faq menu-section"><div><p className="menu-kicker">{t.faqTag}</p><h2>{t.faqTitle}</h2></div><div>{t.faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></section>
 
-    <section className="menu-final"><img src="/images/cooking-classes-8.jpg" alt="" loading="lazy" /><div /><article><h2>{t.finalTitle}</h2><p>{t.finalBody}</p><div className="menu-actions"><a className="menu-pill gold" href="#quotation">{t.quote}<span>↗</span></a><a className="menu-text-link light" href="https://wa.me/966112733888">{t.chat}<span>↗</span></a></div></article></section>
-    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href="tel:+966112733888">+966 11 273 3888</a><a href="mailto:info@tiaracatering.com">info@tiaracatering.com</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}</div><small>{t.rights}</small></footer>
+    <section className="menu-final"><img src="/images/cooking-classes-8.jpg" alt="" loading="lazy" /><div /><article><h2>{t.finalTitle}</h2><p>{t.finalBody}</p><div className="menu-actions"><a className="menu-pill gold" href="#quotation">{t.quote}<span>↗</span></a><a className="menu-text-link light" href={WHATSAPP_URL}>{t.chat}<span>↗</span></a></div></article></section>
+    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href="mailto:info@tiaracatering.com">info@tiaracatering.com</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}</div><small>{t.rights}</small></footer>
     <div className="mobile-menu-cta"><span><small>{menu.name}</small><b>{t.from} {menu.price}</b></span><a href="#quotation">{t.quote}</a></div>
   </main>;
 }

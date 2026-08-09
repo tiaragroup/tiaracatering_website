@@ -32,6 +32,9 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.match(bevatelSource, /chat\.bevatel\.com/);
   assert.match(bevatelSource, /jt1XoePxNBfjVAcH3Yg2YNAW/);
   assert.doesNotMatch(html, /class="floating"/);
+  assert.match(html, /href="tel:920005600"/);
+  assert.match(html, /href="https:\/\/wa\.me\/966920020062"/);
+  assert.doesNotMatch(html, /966112733888|11 273 3888/);
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
 });
 
@@ -59,6 +62,9 @@ test("server-renders conversion-focused English and Arabic menu pages", async ()
   assert.match(english, /Request quotation/);
   assert.match(english, /application\/ld\+json/);
   assert.match(english, /linkedin\.com\/company\/tiara-catering/);
+  assert.match(english, /href="tel:920005600"/);
+  assert.match(english, /href="https:\/\/wa\.me\/966920020062"/);
+  assert.doesNotMatch(english, /966112733888|11 273 3888/);
   assert.match(arabic, /x\.com\/Tiaracateriing/);
   assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
   assert.match(arabic, /القائمة الأولى/);
