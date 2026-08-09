@@ -20,5 +20,17 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FoodService/);
   assert.match(html, /og\.png/);
+  assert.match(html, /hrefLang="ar-SA"|hreflang="ar-SA"/i);
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
+});
+
+test("server-renders a crawlable Arabic experience", async () => {
+  const response = await render("/ar");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تيارا للضيافة/);
+  assert.match(html, /كن ضيفاً/);
+  assert.match(html, /تموين وضيافة فاخرة في الرياض/);
+  assert.match(html, /content-language/);
+  assert.doesNotMatch(html, /\?lang=ar/);
 });

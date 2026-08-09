@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: { default: "Tiara Catering | Luxury Catering in Riyadh", template: "%s | Tiara Catering" },
   description: "Luxury catering in Riyadh for corporate events, weddings, private celebrations, cooking classes and bespoke event consulting.",
   keywords: ["catering Riyadh", "luxury catering Riyadh", "wedding catering Saudi Arabia", "corporate catering Riyadh", "تموين الرياض", "ضيافة الرياض"],
-  alternates: { canonical: "/", languages: { "en-SA": "/", "ar-SA": "/?lang=ar" } },
+  alternates: { canonical: "/", languages: { "en-SA": "/", "ar-SA": "/ar", "x-default": "/" } },
   openGraph: {
     type: "website",
     locale: "en_SA",
