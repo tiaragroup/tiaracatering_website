@@ -35,6 +35,7 @@ test("server-renders a crawlable Arabic experience", async () => {
   const html = await response.text();
   assert.match(html, /تيارا للضيافة/);
   assert.match(html, /كن ضيفاً/);
+  assert.match(html, /arabic-hero-title/);
   assert.match(html, /مائدة تجمعكم/);
   assert.match(html, /تموين وضيافة فاخرة في الرياض/);
   assert.match(html, /content-language/);
