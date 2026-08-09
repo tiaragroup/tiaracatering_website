@@ -21,6 +21,10 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.match(html, /FoodService/);
   assert.match(html, /og\.png/);
   assert.match(html, /hrefLang="ar-SA"|hreflang="ar-SA"/i);
+  assert.match(html, /linkedin\.com\/company\/tiara-catering/);
+  assert.match(html, /x\.com\/Tiaracateriing/);
+  assert.match(html, /facebook\.com\/people\/Tiara-Catering/);
+  assert.match(html, /instagram\.com\/tiara\.catering\.sa/);
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
 });
 
@@ -45,6 +49,8 @@ test("server-renders conversion-focused English and Arabic menu pages", async ()
   assert.match(english, /<span>SAR<\/span><strong>283<\/strong>/);
   assert.match(english, /Request quotation/);
   assert.match(english, /application\/ld\+json/);
+  assert.match(english, /linkedin\.com\/company\/tiara-catering/);
+  assert.match(arabic, /x\.com\/Tiaracateriing/);
   assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
   assert.match(arabic, /القائمة الأولى/);
   assert.match(arabic, /اطلب عرض سعر/);

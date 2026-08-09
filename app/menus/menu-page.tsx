@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { socialLinks } from "../social-links";
 import { menusAr, menusEn } from "./menu-data";
 
 type Lang = "en" | "ar";
@@ -76,7 +77,7 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
     <section id="faq" className="menu-faq menu-section"><div><p className="menu-kicker">{t.faqTag}</p><h2>{t.faqTitle}</h2></div><div>{t.faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></section>
 
     <section className="menu-final"><img src="/images/cooking-classes-8.jpg" alt="" loading="lazy" /><div /><article><h2>{t.finalTitle}</h2><p>{t.finalBody}</p><div className="menu-actions"><a className="menu-pill gold" href="#quotation">{t.quote}<span>↗</span></a><a className="menu-text-link light" href="https://wa.me/966112733888">{t.chat}<span>↗</span></a></div></article></section>
-    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href="tel:+966112733888">+966 11 273 3888</a><a href="mailto:info@tiaracatering.com">info@tiaracatering.com</a></div><small>{t.rights}</small></footer>
+    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href="tel:+966112733888">+966 11 273 3888</a><a href="mailto:info@tiaracatering.com">info@tiaracatering.com</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}</div><small>{t.rights}</small></footer>
     <div className="mobile-menu-cta"><span><small>{menu.name}</small><b>{t.from} {menu.price}</b></span><a href="#quotation">{t.quote}</a></div>
   </main>;
 }

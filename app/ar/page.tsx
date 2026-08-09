@@ -10,5 +10,5 @@ export const metadata: Metadata = {
   other: { "content-language": "ar-SA" },
 };
 
-const schema = { "@context": "https://schema.org", "@type": "FoodService", name: "تيارا للضيافة", alternateName: "Tiara Catering", url: "https://tiaracatering.com/ar", telephone: "+966112733888", email: "info@tiaracatering.com", address: { "@type": "PostalAddress", streetAddress: "٧٩٨٢ طريق الملك فهد، حي العليا", addressLocality: "الرياض", addressCountry: "SA" }, areaServed: "الرياض" };
+const schema = { "@context": "https://schema.org", "@type": "FoodService", name: "تيارا للضيافة", alternateName: "Tiara Catering", url: "https://tiaracatering.com/ar", telephone: "+966112733888", email: "info@tiaracatering.com", address: { "@type": "PostalAddress", streetAddress: "٧٩٨٢ طريق الملك فهد، حي العليا", addressLocality: "الرياض", addressCountry: "SA" }, areaServed: "الرياض", sameAs: ["https://www.instagram.com/tiara.catering.sa", "https://www.facebook.com/people/Tiara-Catering-%D8%AA%D9%8A%D8%A7%D8%B1%D8%A7-%D9%83%D9%8A%D8%AA%D8%B1%D9%86%D9%82/61577808929063/", "https://www.linkedin.com/company/tiara-catering/", "https://x.com/Tiaracateriing"] };
 export default function ArabicPage() { return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /><HomePage lang="ar" /></>; }
