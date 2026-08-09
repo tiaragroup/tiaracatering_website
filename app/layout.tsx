@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./menus/menu.css";
 import BevatelChat from "./bevatel-chat";
+import FirebaseAnalytics from "./firebase-analytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tiaracatering.com"),
@@ -27,5 +28,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#fbf8f3" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<BevatelChat /></body></html>;
+  return <html lang="en"><body>{children}<BevatelChat /><FirebaseAnalytics /></body></html>;
 }

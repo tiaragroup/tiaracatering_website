@@ -1,0 +1,45 @@
+# Google Cloud Build pipeline: build the Next.js static export and publish it to
+# Firebase Hosting. Wired to the GitHub repo tiaragroup/tiaracatering_website via a
+# push trigger on the main branch.
+#
+# The deploy step authenticates with the trigger's service account through
+# Application Default Credentials on the Cloud Build metadata server — no
+# FIREBASE_TOKEN and no service-account key file are needed.
+steps:
+  - id: install
+    name: node:22
+    entrypoint: npm
+    args: ["ci"]
+
+  - id: lint
+    name: node:22
+    entrypoint: npm
+    args: ["run", "lint"]
+
+  - id: build
+    name: node:22
+    entrypoint: npm
+    args: ["run", "build"]
+
+  # Runs against the out/ directory produced by the build step.
+  - id: test
+    name: node:22
+    entrypoint: node
+    args: ["--test", "tests/rendered-html.test.mjs"]
+
+  - id: deploy
+    name: node:22
+    entrypoint: npx
+    args:
+      - --yes
+      - firebase-tools@15
+      - deploy
+      - --only=hosting
+      - --project=$PROJECT_ID
+      - --non-interactive
+      - --message=$SHORT_SHA
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s

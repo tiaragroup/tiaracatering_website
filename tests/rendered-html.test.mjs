@@ -1,47 +1,77 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import test, { after, before } from "node:test";
 
-const projectDir = fileURLToPath(new URL("..", import.meta.url));
+// The site is a static export served by Firebase Hosting, so these tests serve the
+// built out/ directory the same way Hosting does (cleanUrls: /menus -> menus.html)
+// and assert against the prerendered HTML a crawler would receive.
+const outDir = fileURLToPath(new URL("../out", import.meta.url));
 const port = 32000 + (process.pid % 1000);
 const origin = `http://127.0.0.1:${port}`;
 let server;
 
+const CONTENT_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+};
+
+async function readCandidate(pathname) {
+  const relative = pathname.replace(/^\/+/, "");
+  const candidates = relative === ""
+    ? ["index.html"]
+    : [`${relative}.html`, path.join(relative, "index.html"), relative];
+
+  for (const candidate of candidates) {
+    const filePath = path.join(outDir, candidate);
+    if (!filePath.startsWith(outDir)) continue;
+    try {
+      return { body: await readFile(filePath), ext: path.extname(candidate) };
+    } catch {
+      // Candidate does not exist — fall through to the next one.
+    }
+  }
+  return null;
+}
+
 before(async () => {
-  const nextBin = path.join(projectDir, "node_modules", "next", "dist", "bin", "next");
-  server = spawn(process.execPath, [nextBin, "start", "-H", "127.0.0.1", "-p", String(port)], {
-    cwd: projectDir,
-    stdio: ["ignore", "pipe", "pipe"],
+  server = createServer((request, response) => {
+    const { pathname } = new URL(request.url, origin);
+    readCandidate(decodeURIComponent(pathname)).then((file) => {
+      if (!file) {
+        response.writeHead(404, { "content-type": "text/html; charset=utf-8" });
+        response.end("not found");
+        return;
+      }
+      response.writeHead(200, {
+        "content-type": CONTENT_TYPES[file.ext] ?? "application/octet-stream",
+      });
+      response.end(file.body);
+    });
   });
 
-  let output = "";
-  server.stdout.on("data", (chunk) => { output += chunk; });
-  server.stderr.on("data", (chunk) => { output += chunk; });
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(port, "127.0.0.1", resolve);
+  });
 
-  for (let attempt = 0; attempt < 120; attempt += 1) {
-    if (server.exitCode !== null) throw new Error(`Next.js exited before startup:\n${output}`);
-    try {
-      const response = await fetch(origin);
-      if (response.ok) return;
-    } catch {}
-    await new Promise((resolve) => setTimeout(resolve, 250));
-  }
-
-  throw new Error(`Timed out waiting for Next.js:\n${output}`);
+  const rootExists = await readCandidate("/");
+  if (!rootExists) throw new Error(`No static export found in ${outDir}. Run "next build" first.`);
 });
 
-after(() => {
-  server?.kill();
+after(async () => {
+  await new Promise((resolve) => server.close(resolve));
 });
 
 async function render(path = "/") {
   return fetch(`${origin}${path}`, { headers: { accept: "text/html" } });
 }
 
-test("server-renders the Tiara Catering homepage and SEO content", async () => {
+test("prerenders the Tiara Catering homepage and SEO content", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
@@ -70,7 +100,7 @@ test("server-renders the Tiara Catering homepage and SEO content", async () => {
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
 });
 
-test("server-renders a crawlable Arabic experience", async () => {
+test("prerenders a crawlable Arabic experience", async () => {
   const response = await render("/ar");
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -83,7 +113,7 @@ test("server-renders a crawlable Arabic experience", async () => {
   assert.doesNotMatch(html, /\?lang=ar/);
 });
 
-test("server-renders conversion-focused English and Arabic menu pages", async () => {
+test("prerenders conversion-focused English and Arabic menu pages", async () => {
   const [englishResponse, arabicResponse] = await Promise.all([render("/menus"), render("/ar/menus")]);
   assert.equal(englishResponse.status, 200);
   assert.equal(arabicResponse.status, 200);
