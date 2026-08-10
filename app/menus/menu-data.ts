@@ -1,5 +1,7 @@
+export type Lang = "en" | "ar";
 export type MenuCategory = { title: string; items: string[] };
 export type MenuPackage = { id: string; name: string; price: number; badge?: string; categories: MenuCategory[] };
+export type Faq = readonly [question: string, answer: string];
 
 export const menusEn: MenuPackage[] = [
   { id: "menu-1", name: "Menu One", price: 283, categories: [
@@ -24,7 +26,7 @@ export const menusEn: MenuPackage[] = [
     { title: "Hot Appetizers", items: ["Mixed mouajanat, kibbeh and mini vegetable pizza", "Musakhan roll with tangy pomegranate dip"] },
     { title: "Main Courses", items: ["Lamb marqooq with eggplant and vegetables", "White rice", "Vegetable maqluba with minced beef and chicken", "Baked salmon with dill and mustard sauce", "Classic beef lasagne al forno", "Mixed grill: chicken taouk and lamb kofta with grilled vegetables", "Chinese fried rice with vegetables"] },
     { title: "Desserts", items: ["Tropical fruit salad", "Mini cheesecake assortment: raspberry, red velvet and Oreo", "Assorted fruit tarts", "Assorted cakes", "Baklava selection", "Om Ali and assorted éclairs"] },
-    { title: "Beverages", items: ["Orange juice", "Carrot juice", "Mineral water and soft drinks", "Water", "Tea, coffee and milk — low-fat, full-fat, hot or cold", "Saudi coffee"] },
+    { title: "Beverages", items: ["Orange juice", "Carrot juice", "Soft drinks", "Mineral water", "Tea, coffee and milk — low-fat, full-fat, hot or cold", "Saudi coffee"] },
   ]},
 ];
 
@@ -51,6 +53,73 @@ export const menusAr: MenuPackage[] = [
     { title: "المقبلات الساخنة", items: ["تشكيلة معجنات وكبة وميني بيتزا بالخضروات", "رول مسخن مع صلصة الرمان الحامضة"] },
     { title: "الأطباق الرئيسية", items: ["مرقوق بالضأن والباذنجان والخضروات", "أرز أبيض", "مقلوبة خضروات باللحم المفروم والدجاج", "سلمون مخبوز بصلصة الشبت والخردل", "لازانيا لحم كلاسيكية بالفرن", "مشاوي مشكلة: شيش طاووق وكفتة ضأن مع خضروات مشوية", "أرز صيني مقلي بالخضروات"] },
     { title: "الحلويات", items: ["سلطة فواكه استوائية", "تشكيلة ميني تشيزكيك: توت العليق وريد فلفت وأوريو", "تشكيلة تارت الفواكه", "تشكيلة كيك", "تشكيلة بقلاوة", "أم علي وتشكيلة إكلير"] },
-    { title: "المشروبات", items: ["عصير برتقال", "عصير جزر", "مياه معدنية ومشروبات غازية", "مياه", "شاي وقهوة وحليب — قليل أو كامل الدسم، ساخن أو بارد", "قهوة سعودية"] },
+    { title: "المشروبات", items: ["عصير برتقال", "عصير جزر", "مشروبات غازية", "مياه معدنية", "شاي وقهوة وحليب — قليل أو كامل الدسم، ساخن أو بارد", "قهوة سعودية"] },
   ]},
 ];
+
+export const faqsEn: Faq[] = [
+  ["Is the displayed price the final event total?", "No. The menu rate is a starting point. Your final quotation depends on guest count, event date, venue and required service."],
+  ["Can the menu be adjusted?", "Share your preferences and dietary requirements in the quotation request. Our team will confirm what can be tailored."],
+  ["Which menu should I choose?", "Menu One is a versatile foundation, Menu Two adds more variety, and Menu Three offers the fullest signature selection. Our team can recommend the right fit."],
+  ["How quickly can I speak to someone?", "Use WhatsApp for the fastest route to our event team, or send a quotation request with your menu, date and guest count already included."],
+];
+
+export const faqsAr: Faq[] = [
+  ["هل السعر المعروض هو التكلفة النهائية للمناسبة؟", "لا. سعر القائمة هو نقطة بداية، ويعتمد العرض النهائي على عدد الضيوف والتاريخ والموقع والخدمة المطلوبة."],
+  ["هل يمكن تعديل القائمة؟", "اذكر تفضيلاتك واحتياجاتك الغذائية في طلب العرض، وسيؤكد فريقنا الخيارات التي يمكن تخصيصها."],
+  ["أي قائمة أختار؟", "القائمة الأولى أساس متنوع، والثانية تضيف خيارات أكثر، والثالثة تقدم تجربتنا الأكثر اكتمالاً. ويمكن لفريقنا ترشيح الأنسب."],
+  ["كيف أتحدث مع الفريق بسرعة؟", "واتساب هو أسرع وسيلة للوصول إلى فريق المناسبات، أو أرسل طلب عرض يتضمن القائمة والتاريخ وعدد الضيوف."],
+];
+
+export const menusFor = (lang: Lang) => (lang === "ar" ? menusAr : menusEn);
+export const faqsFor = (lang: Lang) => (lang === "ar" ? faqsAr : faqsEn);
+export const countItems = (menu: MenuPackage) => menu.categories.reduce((total, category) => total + category.items.length, 0);
+export const lowestPrice = (menus: MenuPackage[]) => Math.min(...menus.map((menu) => menu.price));
+
+/** Arabic-Indic digits, so numbers in the Arabic UI match the hand-written copy (٣ قوائم، ٦ أقسام). */
+export const toArabicDigits = (value: number | string) => String(value).replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]);
+export const formatNumber = (lang: Lang, value: number) => (lang === "ar" ? toArabicDigits(value) : String(value));
+
+const PAGE_URL: Record<Lang, string> = { en: "https://tiaracatering.com/menus", ar: "https://tiaracatering.com/ar/menus" };
+const LOCALE: Record<Lang, string> = { en: "en-SA", ar: "ar-SA" };
+const LIST_NAME: Record<Lang, string> = { en: "Tiara Catering Menus 2026", ar: "قوائم تيارا للضيافة ٢٠٢٦" };
+
+/** Full menu structure + FAQ answers as JSON-LD, so search engines can index every course and question. */
+export function menuJsonLd(lang: Lang) {
+  const base = PAGE_URL[lang];
+  const inLanguage = LOCALE[lang];
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: LIST_NAME[lang],
+      inLanguage,
+      itemListElement: menusFor(lang).map((menu, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Menu",
+          name: menu.name,
+          url: `${base}#${menu.id}`,
+          inLanguage,
+          hasMenuSection: menu.categories.map((category) => ({
+            "@type": "MenuSection",
+            name: category.title,
+            hasMenuItem: category.items.map((item) => ({ "@type": "MenuItem", name: item })),
+          })),
+          offers: { "@type": "Offer", price: menu.price, priceCurrency: "SAR", url: `${base}#${menu.id}`, availability: "https://schema.org/InStock" },
+        },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      inLanguage,
+      mainEntity: faqsFor(lang).map(([question, answer]) => ({
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: { "@type": "Answer", text: answer },
+      })),
+    },
+  ];
+}
