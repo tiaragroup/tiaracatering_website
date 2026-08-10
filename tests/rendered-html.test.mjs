@@ -97,6 +97,9 @@ test("prerenders the Tiara Catering homepage and SEO content", async () => {
   assert.match(html, /info@tiaracatering\.com/);
   assert.match(html, /Abdullah Al-Ahwani, Al-Qirawan District, Riyadh 13531/);
   assert.match(html, /maps\/dir\/\/Tiara\+Catering/);
+  assert.match(html, /href="http:\/\/bakerisbakery\.com\/"/);
+  assert.match(html, /href="https:\/\/elementsduchocolat\.com\/"/);
+  assert.match(html, /Baker’s Bakery — Visit website/);
   assert.doesNotMatch(html, /codex-preview|Starter Project|react-loading-skeleton/i);
 });
 
