@@ -1,10 +1,16 @@
 # Google Cloud Build pipeline: build the Next.js static export and publish it to
-# Firebase Hosting. Wired to the GitHub repo tiaragroup/tiaracatering_website via a
-# push trigger on the main branch.
+# Firebase Hosting. Run by the `deploy-hosting-main` trigger on pushes matching
+# ^main$, in project tiara-catering, region us-central1. The trigger is regional
+# because it reads the repo through a 2nd-gen connection (`github-tiaragroup` ->
+# repository `tiaracatering-website`), which is itself regional; builds must live
+# in the same region as their connection.
 #
-# The deploy step authenticates with the trigger's service account through
-# Application Default Credentials on the Cloud Build metadata server — no
-# FIREBASE_TOKEN and no service-account key file are needed.
+# The deploy step authenticates as the trigger's service account,
+# cloudbuild-deployer@tiara-catering.iam.gserviceaccount.com, through Application
+# Default Credentials on the Cloud Build metadata server — no FIREBASE_TOKEN and
+# no service-account key file are needed. That account holds firebasehosting.admin
+# and firebase.viewer to deploy, plus logging.logWriter, which CLOUD_LOGGING_ONLY
+# below makes mandatory: without it every build fails before the first step.
 steps:
   - id: install
     name: node:22
