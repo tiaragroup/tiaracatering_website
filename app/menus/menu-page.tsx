@@ -1,8 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, LOCATION_AR, LOCATION_EN, LOCATION_MAP_URL, WHATSAPP_URL } from "../contact-details";
-import { socialLinks } from "../social-links";
+import { WHATSAPP_URL } from "../contact-details";
 import { countItems, faqsFor, formatNumber, type Lang, lowestPrice, menusFor } from "./menu-data";
 
 const DEFAULT_MENU = 1;
@@ -13,7 +12,7 @@ const localToday = () => { const now = new Date(); return new Date(now.getTime()
 
 const ui = {
   en: {
-    dir: "ltr", back: "Home", switch: "العربية", switchHref: "/ar/menus", quote: "Request quotation", chat: "Chat on WhatsApp", faqNav: "FAQ",
+    dir: "ltr", quote: "Request quotation", chat: "Chat on WhatsApp",
     eyebrow: "Tiara Catering · 2026 collection", title: <>A menu for every <em>kind of gathering.</em></>,
     lead: "Three considered catering menus, each bringing together generous Saudi hospitality, international favourites and a complete dining rhythm from first welcome to final coffee.",
     explore: "Explore the menus", helper: "Not sure which menu fits?", helperLink: "Let our team guide you",
@@ -27,10 +26,10 @@ const ui = {
     guests: "Number of guests", date: "Event date", event: "Event type", eventOptions: ["Private gathering", "Corporate event", "Wedding or gala", "Special event", "Other"], note: "Anything we should know?", notePlaceholder: "Venue, dietary needs, service style…", send: "Request this menu", reply: "A Tiara event specialist will review your request.",
     whyTag: "Why Tiara", whyTitle: <>A menu is only the <em>beginning.</em></>, why: [["Tailored guidance", "We help align the menu with your guests, venue and occasion."], ["One point of contact", "Clear coordination from the first conversation through event day."], ["Considered presentation", "Food, service and styling designed to feel like one experience."]],
     faqTag: "Good to know", faqTitle: "Before you request a quote",
-    finalTitle: <>Your guests remember the feeling.<br /><em>Let’s shape it together.</em></>, finalBody: "Choose a menu, share your event details and let Tiara turn the brief into a considered proposal.", rights: "© 2026 Tiara Catering. All rights reserved.",
+    finalTitle: <>Your guests remember the feeling.<br /><em>Let’s shape it together.</em></>, finalBody: "Choose a menu, share your event details and let Tiara turn the brief into a considered proposal.",
   },
   ar: {
-    dir: "rtl", back: "الرئيسية", switch: "EN", switchHref: "/menus", quote: "اطلب عرض سعر", chat: "تحدث عبر واتساب", faqNav: "الأسئلة الشائعة",
+    dir: "rtl", quote: "اطلب عرض سعر", chat: "تحدث عبر واتساب",
     eyebrow: "تيارا للضيافة · مجموعة ٢٠٢٦", title: <>قائمة لكل <em>نوع من المناسبات.</em></>,
     lead: "ثلاث قوائم ضيافة متكاملة تجمع كرم الضيافة السعودية مع الأطباق العالمية المحبوبة، من أول ترحيب وحتى القهوة الختامية.",
     explore: "استعرض القوائم", helper: "لست متأكداً من القائمة الأنسب؟", helperLink: "دع فريقنا يساعدك",
@@ -44,7 +43,7 @@ const ui = {
     guests: "عدد الضيوف", date: "تاريخ المناسبة", event: "نوع المناسبة", eventOptions: ["لقاء خاص", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "أخرى"], note: "أي تفاصيل مهمة؟", notePlaceholder: "الموقع، الاحتياجات الغذائية، أسلوب الخدمة…", send: "اطلب هذه القائمة", reply: "سيقوم مختص مناسبات من تيارا بمراجعة طلبك.",
     whyTag: "لماذا تيارا", whyTitle: <>القائمة ليست سوى <em>البداية.</em></>, why: [["إرشاد مخصص", "نساعدك في مواءمة القائمة مع ضيوفك وموقعك ومناسبتك."], ["نقطة اتصال واحدة", "تنسيق واضح من المحادثة الأولى وحتى يوم المناسبة."], ["تقديم مدروس", "الطعام والخدمة والتنسيق مصممة لتبدو كتجربة واحدة."]],
     faqTag: "معلومات مهمة", faqTitle: "قبل طلب عرض السعر",
-    finalTitle: <>يتذكر ضيوفك الإحساس.<br /><em>فلنصنعه معاً.</em></>, finalBody: "اختر قائمتك وشارك تفاصيل المناسبة ودع تيارا تحول فكرتك إلى عرض مدروس.", rights: "© ٢٠٢٦ تيارا للضيافة. جميع الحقوق محفوظة.",
+    finalTitle: <>يتذكر ضيوفك الإحساس.<br /><em>فلنصنعه معاً.</em></>, finalBody: "اختر قائمتك وشارك تفاصيل المناسبة ودع تيارا تحول فكرتك إلى عرض مدروس.",
   },
 } as const;
 
@@ -63,7 +62,6 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
   const counts = menus.map(countItems);
   const fromPrice = lowestPrice(menus);
 
-  useEffect(() => { document.documentElement.lang = lang; document.documentElement.dir = t.dir; }, [lang, t.dir]);
   // Bookings cannot be made for a past date; set on the client so the prerendered HTML stays cacheable.
   useEffect(() => { if (dateInput.current) dateInput.current.min = localToday(); }, []);
 
@@ -83,8 +81,6 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
   }
 
   return <main className={`menu-site ${lang}`} dir={t.dir}>
-    <header className="menu-header"><a className="menu-brand" href={lang === "ar" ? "/ar" : "/"}><img src="/tiara-logo.png" alt="Tiara Catering" /></a><nav><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href="#collection">{t.explore}</a><a href="#faq">{t.faqNav}</a></nav><div><a className="menu-language" href={t.switchHref} hrefLang={lang === "ar" ? "en" : "ar"}>{t.switch}</a><a className="menu-pill dark" href="#quotation">{t.quote}<span aria-hidden="true">↗</span></a></div></header>
-
     <section className="menu-hero"><div className="menu-hero-copy"><p className="menu-kicker">{t.eyebrow}</p><h1>{t.title}</h1><p>{t.lead}</p><div className="menu-actions"><a className="menu-pill dark" href="#collection">{t.explore}<span aria-hidden="true">↓</span></a><a className="menu-text-link" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">{t.chat}<span aria-hidden="true">↗</span></a></div><p className="menu-helper">{t.helper} <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">{t.helperLink} →</a></p></div><div className="menu-hero-image"><img src="/images/cooking-classes-4.jpg" alt={lang === "ar" ? "مائدة ضيافة أنيقة من تيارا" : "Elegant Tiara Catering menu presentation"} fetchPriority="high" /><div className="menu-price-note"><small>{t.from}</small><strong>{num(fromPrice)}</strong><span>{t.packageRate}</span></div></div></section>
     <div className="menu-trust">{t.trust.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
 
@@ -97,7 +93,6 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
     <section id="faq" className="menu-faq menu-section"><div><p className="menu-kicker">{t.faqTag}</p><h2>{t.faqTitle}</h2></div><div>{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
 
     <section className="menu-final"><img src="/images/cooking-classes-8.jpg" alt="" loading="lazy" /><div /><article><h2>{t.finalTitle}</h2><p>{t.finalBody}</p><div className="menu-actions"><a className="menu-pill gold" href="#quotation">{t.quote}<span aria-hidden="true">↗</span></a><a className="menu-text-link light" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">{t.chat}<span aria-hidden="true">↗</span></a></div></article></section>
-    <footer className="menu-footer"><img src="/tiara-logo.png" alt="Tiara Catering" /><div><a href={lang === "ar" ? "/ar" : "/"}>{t.back}</a><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}<a className="footer-address" href={LOCATION_MAP_URL} target="_blank" rel="noopener noreferrer">{lang === "ar" ? LOCATION_AR : LOCATION_EN}</a></div><small>{t.rights}</small></footer>
     <div className="mobile-menu-cta"><span><small>{menu.name}</small><b>{t.from} {num(menu.price)}</b></span><a href="#quotation">{t.quote}</a></div>
   </main>;
 }

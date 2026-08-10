@@ -1,16 +1,14 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, LOCATION_AR, LOCATION_EN, LOCATION_MAP_URL, WHATSAPP_URL } from "./contact-details";
-import { socialLinks } from "./social-links";
+import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, WHATSAPP_URL } from "./contact-details";
 
 type Lang = "en" | "ar";
 const gallery = ["7-1", "1", "3", "8", "2", "4", "6"].map((n) => `/images/cooking-classes-${n}.jpg`);
 
 const copy = {
   en: {
-    dir: "ltr", switchLabel: "العربية", switchHref: "/ar", menu: "Menu", close: "Close",
-    nav: [["About", "#about"], ["Services", "#services"], ["Menus", "/menus"], ["Gallery", "#gallery"], ["Houses", "#brands"], ["Contact", "#contact"]],
+    dir: "ltr", close: "Close",
     quote: "Request a quote", eyebrow: "Culinary atelier · Riyadh",
     hero: ["Be a guest", "at your own", "celebration."],
     intro: "Family dinners, date nights, brunches, galas and weeklong menus — cooked, styled and served by a Riyadh kitchen where Saudi heritage meets modern craft.",
@@ -36,11 +34,9 @@ const copy = {
     testimonials: [["Customer service responds quickly and helps you understand everything. I highly recommend Tiara for events, big or small.", "Loubnah", "Private event"], ["Professional and wonderful treatment. The food was delicious, and the customer service was exceptional.", "Mona", "Special occasion"], ["Delicious food, excellent cooking, high quality — and very precise with delivery time.", "Mohammad", "Corporate catering"], ["Distinguished service and delicious food. A unique experience from beginning to end.", "Johara", "Family celebration"]],
     ctaTag: "Begin with your occasion", ctaTitle: <>A table that brings<br />everyone <em>together.</em></>, ctaBody: "Tell us who you’re gathering and how you want it to feel. We’ll create the menu, service and details around your occasion.",
     formTitle: <>Tell us about your <em>occasion</em></>, fields: ["Full name", "Phone", "Email", "Event type", "Event date", "Guests", "Details"], eventOptions: ["Select an event", "Corporate event", "Wedding or gala", "Special event", "Cooking class", "Other"], details: "Location, service style, dietary needs or anything else", send: "Send request on WhatsApp", response: "Usually replies during business hours", contactTag: "Direct contact", address: "7982 King Fahad Road, Olaya District, Riyadh", whatsapp: "WhatsApp us",
-    footerBody: "Culinary excellence meets the heart of Saudi tradition. Based in Riyadh, crafting dining experiences people remember.", rights: "© 2026 Tiara Catering. All rights reserved.",
   },
   ar: {
-    dir: "rtl", switchLabel: "EN", switchHref: "/", menu: "القائمة", close: "إغلاق",
-    nav: [["عن تيارا", "#about"], ["خدماتنا", "#services"], ["القوائم", "/ar/menus"], ["المعرض", "#gallery"], ["بيوتنا", "#brands"], ["تواصل معنا", "#contact"]],
+    dir: "rtl", close: "إغلاق",
     quote: "اطلب عرض سعر", eyebrow: "أتيليه الطهي · الرياض",
     hero: ["كن ضيفاً", "في مناسبتك", "الخاصة."],
     intro: "عشاء عائلي أو لقاء خاص أو حفل كبير — نطبخ وننسّق ونقدّم تجربة ضيافة يلتقي فيها الإرث السعودي بالحرفة الحديثة.",
@@ -60,27 +56,21 @@ const copy = {
     testimonials: [["خدمة العملاء سريعة وتساعدك على فهم كل شيء. أنصح بتيارا للمناسبات الكبيرة والصغيرة.", "لبنى", "مناسبة خاصة"], ["تعامل احترافي ورائع، والطعام لذيذ جداً وخدمة العملاء استثنائية.", "منى", "مناسبة خاصة"], ["طعام لذيذ وطهي ممتاز وجودة عالية ودقة كبيرة في وقت التسليم.", "محمد", "ضيافة مؤسسية"], ["خدمة متميزة وطعام لذيذ. تجربة فريدة من البداية إلى النهاية.", "جوهرة", "احتفال عائلي"]],
     ctaTag: "نبدأ من مناسبتك", ctaTitle: <>مائدة تجمعكم.<br /><em>وذكرى تبقى.</em></>, ctaBody: "شاركنا ضيوفك وتفاصيل مناسبتك، ونصمم لك قائمة وخدمة وتجربة تليق باللحظة.",
     formTitle: <>حدّثنا عن <em>مناسبتك</em></>, fields: ["الاسم الكامل", "الجوال", "البريد الإلكتروني", "نوع المناسبة", "تاريخ المناسبة", "عدد الضيوف", "التفاصيل"], eventOptions: ["اختر المناسبة", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "درس طهي", "أخرى"], details: "الموقع وأسلوب الخدمة والاحتياجات الغذائية وأي تفاصيل أخرى", send: "إرسال الطلب عبر واتساب", response: "نرد عادة خلال ساعات العمل", contactTag: "تواصل مباشر", address: "٧٩٨٢ طريق الملك فهد، حي العليا، الرياض", whatsapp: "تواصل عبر واتساب",
-    footerBody: "التميّز في الطهي يلتقي بقلب التراث السعودي. من الرياض نصنع تجارب ضيافة تبقى في الذاكرة.", rights: "© ٢٠٢٦ تيارا للضيافة. جميع الحقوق محفوظة.",
   },
 } as const;
 
 export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   const t = copy[lang];
-  const [menu, setMenu] = useState(false);
   const [activeService, setActiveService] = useState(0);
   const [quote, setQuote] = useState(0);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   useEffect(() => {
-    document.documentElement.lang = lang;
-    document.documentElement.dir = t.dir;
-  }, [lang, t.dir]);
-  useEffect(() => {
     const timer = window.setInterval(() => setQuote((q) => (q + 1) % t.testimonials.length), 7000);
     return () => window.clearInterval(timer);
   }, [t.testimonials.length]);
   useEffect(() => {
-    const close = (event: KeyboardEvent) => event.key === "Escape" && (setMenu(false), setLightbox(null));
+    const close = (event: KeyboardEvent) => event.key === "Escape" && setLightbox(null);
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
   }, []);
@@ -95,17 +85,6 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   }
 
   return <main dir={t.dir} className={`site-shell ${lang}`}>
-    <a className="skip-link" href="#content">{lang === "ar" ? "انتقل إلى المحتوى" : "Skip to content"}</a>
-    <header className="site-header">
-      <a className="brand" href="#top" aria-label="Tiara Catering"><img src="/tiara-logo.png" alt="Tiara Catering" /></a>
-      <nav className={menu ? "nav open" : "nav"} aria-label={lang === "ar" ? "القائمة الرئيسية" : "Main navigation"}>
-        {t.nav.map(([label, href]) => <a href={href} onClick={() => setMenu(false)} key={href}>{label}</a>)}
-        <a className="mobile-quote" href="#contact" onClick={() => setMenu(false)}>{t.quote}</a>
-      </nav>
-      <div className="header-actions"><a className="language" href={t.switchHref} hrefLang={lang === "ar" ? "en" : "ar"} aria-label={lang === "ar" ? "Switch to English" : "التبديل إلى العربية"}>{t.switchLabel}</a><a className="pill dark desktop-cta" href="#contact">{t.quote}<span>↗</span></a><button className="menu" onClick={() => setMenu(!menu)} aria-expanded={menu} aria-label={menu ? t.close : t.menu}>{menu ? "×" : "☰"}</button></div>
-    </header>
-
-    <div id="content">
       <section id="top" className="hero">
         <div className="hero-copy"><p className="eyebrow reveal"><span />{t.eyebrow}</p><h1 className={lang === "ar" ? "arabic-hero-title" : undefined}>{lang === "ar" ? <><span>كن ضيفاً في</span><span>مناسبتك <em>الخاصة.</em></span></> : t.hero.map((line, i) => i === 2 ? <em key={line}>{line}</em> : <span key={line}>{line}</span>)}</h1><p className="lead">{t.intro}</p><div className="buttons"><a className="pill dark" href="#contact">{t.quote}<span>↗</span></a><a className="text-link" href="#services">{t.viewServices}<span>↓</span></a></div><div className="stats">{t.proof.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div></div>
         <div className="hero-visual"><img className="hero-photo" src="/images/cooking-classes-7-1.jpg" alt={lang === "ar" ? "طبق فاخر من إعداد تيارا للضيافة في الرياض" : "Elegant plated course by Tiara Catering in Riyadh"} fetchPriority="high" /><div className="hero-shade" /><img className="mark" src="/tiara-mark.png" alt="" /><div className="availability"><i /><span>{lang === "ar" ? "نستقبل حجوزات المناسبات" : "Now booking private events"}</span></div></div>
@@ -127,10 +106,7 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
 
       <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold" href="#contact">{t.quote}<span>↗</span></a></div></section>
 
-      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href="mailto:info@tiaracatering.com">info@tiaracatering.com</a><span>{t.address}</span></address></div><form onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date" /></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} placeholder={t.details} /></div><div className="form-submit"><button className="pill dark" type="submit">{t.send}<span>↗</span></button><small>{t.response}</small></div></form></section>
-    </div>
-
-    <footer className="site-footer"><div className="footer-brand"><img src="/tiara-logo.png" alt="Tiara Catering" /><p>{t.footerBody}</p></div><div><span>{lang === "ar" ? "تواصل" : "Connect"}</span><a href={CALL_HREF}>{lang === "ar" ? "اتصل" : "Call"}: {CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><a className="footer-address" href={LOCATION_MAP_URL} target="_blank" rel="noopener noreferrer">{lang === "ar" ? LOCATION_AR : LOCATION_EN}</a>{socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}<a href={WHATSAPP_URL}>WhatsApp</a></div><div><span>{lang === "ar" ? "اكتشف" : "Explore"}</span>{t.nav.slice(0, 4).map(([label, href]) => <a href={href} key={href}>{label}</a>)}</div><small>{t.rights}</small></footer>
-    {lightbox && <div className="lightbox" role="dialog" aria-modal="true" aria-label={t.galleryTag}><button aria-label={t.close} onClick={() => setLightbox(null)}>×</button><img src={lightbox} alt="" /></div>}
+      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date" /></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} placeholder={t.details} /></div><div className="form-submit"><button className="pill dark" type="submit">{t.send}<span>↗</span></button><small>{t.response}</small></div></form></section>
+    {lightbox &&<div className="lightbox" role="dialog" aria-modal="true" aria-label={t.galleryTag}><button aria-label={t.close} onClick={() => setLightbox(null)}>×</button><img src={lightbox} alt="" /></div>}
   </main>;
 }

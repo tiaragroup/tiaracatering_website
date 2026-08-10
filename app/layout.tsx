@@ -3,6 +3,7 @@ import "./globals.css";
 import "./menus/menu.css";
 import BevatelChat from "./bevatel-chat";
 import FirebaseAnalytics from "./firebase-analytics";
+import SiteChrome from "./site-chrome";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tiaracatering.com"),
@@ -28,5 +29,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#fbf8f3" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<BevatelChat /><FirebaseAnalytics /></body></html>;
+  // The header and footer live here so they stay mounted across client-side navigation.
+  return <html lang="en"><body><SiteChrome>{children}</SiteChrome><BevatelChat /><FirebaseAnalytics /></body></html>;
 }
