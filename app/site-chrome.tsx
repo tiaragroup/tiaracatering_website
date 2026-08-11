@@ -9,20 +9,68 @@ import { socialLinks } from "./social-links";
 type Lang = "en" | "ar";
 
 const chrome = {
-  en: {
-    dir: "ltr", home: "/", skip: "Skip to content", switchLabel: "العربية", switchAria: "التبديل إلى العربية",
-    navLabel: "Main navigation", menu: "Menu", close: "Close", quote: "Request a quote",
-    nav: [["About", "#about"], ["Services", "#services"], ["Menus", "/menus"], ["Gallery", "#gallery"], ["Houses", "#brands"], ["Contact", "#contact"]],
-    connect: "Connect", explore: "Explore", call: "Call", location: LOCATION_EN,
-    footerBody: "Culinary excellence meets the heart of Saudi tradition. Based in Riyadh, crafting dining experiences people remember.",
-    rights: "© 2026 Tiara Catering. All rights reserved.",
-  },
+    en: {
+      dir: "ltr",
+      home: "/",
+      skip: "Skip to content",
+      switchLabel: "العربية",
+      switchAria: "التبديل إلى العربية",
+      navLabel: "Main navigation",
+      menu: "Menu",
+      close: "Close",
+      quote: "Request a quote",
+
+      nav: [
+        ["About", "#about"],
+        ["Services", "#services"],
+        ["Menus", "/menus"],
+        ["Gallery", "#gallery"],
+        ["Houses", "#brands"],
+        ["Contact", "#contact"],
+      ],
+
+      connect: "Connect",
+      explore: "Explore",
+      call: "Call",
+      location: LOCATION_EN,
+
+      privacy: "Privacy Policy",
+
+      footerBody:
+        "Culinary excellence meets the heart of Saudi tradition. Based in Riyadh, crafting dining experiences people remember.",
+
+      rights: "© 2026 Tiara Catering. All rights reserved.",
+    },
   ar: {
-    dir: "rtl", home: "/ar", skip: "انتقل إلى المحتوى", switchLabel: "EN", switchAria: "Switch to English",
-    navLabel: "القائمة الرئيسية", menu: "القائمة", close: "إغلاق", quote: "اطلب عرض سعر",
-    nav: [["عن تيارا", "#about"], ["خدماتنا", "#services"], ["القوائم", "/ar/menus"], ["المعرض", "#gallery"], ["بيوتنا", "#brands"], ["تواصل معنا", "#contact"]],
-    connect: "تواصل", explore: "اكتشف", call: "اتصل", location: LOCATION_AR,
-    footerBody: "التميّز في الطهي يلتقي بقلب التراث السعودي. من الرياض نصنع تجارب ضيافة تبقى في الذاكرة.",
+    dir: "rtl",
+    home: "/ar",
+    skip: "انتقل إلى المحتوى",
+    switchLabel: "EN",
+    switchAria: "Switch to English",
+    navLabel: "القائمة الرئيسية",
+    menu: "القائمة",
+    close: "إغلاق",
+    quote: "اطلب عرض سعر",
+
+    nav: [
+      ["عن تيارا", "#about"],
+      ["خدماتنا", "#services"],
+      ["القوائم", "/ar/menus"],
+      ["المعرض", "#gallery"],
+      ["بيوتنا", "#brands"],
+      ["تواصل معنا", "#contact"],
+    ],
+
+    connect: "تواصل",
+    explore: "اكتشف",
+    call: "اتصل",
+    location: LOCATION_AR,
+
+    privacy: "سياسة الخصوصية",
+
+    footerBody:
+      "التميّز في الطهي يلتقي بقلب التراث السعودي. من الرياض نصنع تجارب ضيافة تبقى في الذاكرة.",
+
     rights: "© ٢٠٢٦ تيارا للضيافة. جميع الحقوق محفوظة.",
   },
 } as const;
@@ -62,7 +110,19 @@ function settleAt(top: number) {
 // Hash targets live on the home page, so they are prefixed when the visitor is elsewhere.
 // Plain anchors keep same-page jumps free of a router navigation.
 function ChromeLink({ href, children, onClick, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
-  if (href.startsWith("#")) return <a href={href} onClick={onClick} {...rest}>{children}</a>;
+  if (href.startsWith("#")) {
+    const followSection = (event: React.MouseEvent<HTMLAnchorElement>) => {
+      onClick?.(event);
+      if (event.defaultPrevented) return;
+
+      // The shared chrome stays mounted between pages. Reinforce the browser's fragment
+      // jump after the click so a repeated click (where no hashchange fires) still works.
+      window.requestAnimationFrame(() => {
+        document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    };
+    return <a href={href} onClick={followSection} {...rest}>{children}</a>;
+  }
   const navigate = (event: React.MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event);
     scrollPositions.set(locationKey(), window.scrollY);
@@ -86,6 +146,8 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   const resolve = (href: string) => href.startsWith("#") && !onHome ? `${t.home}${href}` : href;
   // The menus page carries its own quotation builder; everywhere else the CTA leads to the contact form.
   const quoteHref = onMenus ? "#quotation" : resolve("#contact");
+  const privacyHref =
+  lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy";
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -101,12 +163,24 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     // within the same page can be restored at once; one that swaps the page has to wait.
     const restore = () => {
       scrollPositions.set(here.current, window.scrollY);
+      const hashTarget = window.location.hash.slice(1);
+      if (window.location.pathname === committed.current && hashTarget) {
+        here.current = locationKey();
+        window.requestAnimationFrame(() => {
+          document.getElementById(hashTarget)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        return;
+      }
       const target = scrollPositions.get(locationKey()) ?? 0;
       here.current = locationKey();
       if (window.location.pathname === committed.current) settleAt(target);
       else pendingRestore.current = target;
     };
-    const followHash = () => { here.current = locationKey(); };
+    const followHash = () => {
+      here.current = locationKey();
+      const target = window.location.hash.slice(1);
+      if (target) window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    };
     window.addEventListener("popstate", restore);
     window.addEventListener("hashchange", followHash);
     return () => {
@@ -128,11 +202,18 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     // would leave the visitor at the top. Land on the target if nothing scrolled by itself.
     const target = window.location.hash.slice(1);
     if (!target) return;
+    const startingY = window.scrollY;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(target)?.scrollIntoView({ behavior: "instant", block: "start" });
+    });
     const rescue = window.setTimeout(() => {
-      if (window.scrollY === 0) document.getElementById(target)?.scrollIntoView({ behavior: "instant", block: "start" });
+      if (window.scrollY === startingY) document.getElementById(target)?.scrollIntoView({ behavior: "instant", block: "start" });
     }, 400);
-    return () => window.clearTimeout(rescue);
-  }, []);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(rescue);
+    };
+  }, [pathname]);
   useEffect(() => {
     const close = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", close);
@@ -167,7 +248,19 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
         {socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}
         <a href={WHATSAPP_URL}>WhatsApp</a>
       </div>
-      <div><span>{t.explore}</span>{t.nav.slice(0, 4).map(([label, href]) => <ChromeLink href={resolve(href)} key={href}>{label}</ChromeLink>)}</div>
+     <div>
+      <span>{t.explore}</span>
+
+      {t.nav.slice(0, 4).map(([label, href]) => (
+        <ChromeLink href={resolve(href)} key={href}>
+          {label}
+        </ChromeLink>
+      ))}
+
+      <ChromeLink href={privacyHref}>
+        {t.privacy}
+      </ChromeLink>
+    </div>
       <small>{t.rights}</small>
     </footer>
   </div>;
