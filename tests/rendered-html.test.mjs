@@ -13,6 +13,27 @@ const port = 32000 + (process.pid % 1000);
 const origin = `http://127.0.0.1:${port}`;
 let server;
 
+// Contact details are asserted against the shared constants rather than literals, so a
+// deliberate change in app/contact-details.ts rolls through to the pages without the
+// tests going stale. A removed or renamed export still fails loudly.
+const contactSource = await readFile(new URL("../app/contact-details.ts", import.meta.url), "utf8");
+
+function contactConstant(name) {
+  const match = contactSource.match(new RegExp(`export const ${name} = "([^"]+)"`));
+  if (!match) throw new Error(`${name} is no longer exported from app/contact-details.ts`);
+  return match[1];
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const WHATSAPP_HREF = new RegExp(`href="https://wa\\.me/${contactConstant("WHATSAPP_NUMBER")}"`);
+const CALL_HREF = new RegExp(`href="tel:${contactConstant("CALL_NUMBER")}"`);
+const EMAIL = new RegExp(escapeRegExp(contactConstant("EMAIL")));
+const LOCATION_EN = new RegExp(escapeRegExp(contactConstant("LOCATION_EN")));
+const LOCATION_AR = new RegExp(escapeRegExp(contactConstant("LOCATION_AR")));
+
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".txt": "text/plain; charset=utf-8",
@@ -91,11 +112,11 @@ test("prerenders the Tiara Catering homepage and SEO content", async () => {
   assert.match(bevatelSource, /chat\.bevatel\.com/);
   assert.match(bevatelSource, /jt1XoePxNBfjVAcH3Yg2YNAW/);
   assert.doesNotMatch(html, /class="floating"/);
-  assert.match(html, /href="tel:920005600"/);
-  assert.match(html, /href="https:\/\/wa\.me\/966920020062"/);
+  assert.match(html, CALL_HREF);
+  assert.match(html, WHATSAPP_HREF);
   assert.doesNotMatch(html, /966112733888|11 273 3888/);
-  assert.match(html, /info@tiaracatering\.com/);
-  assert.match(html, /Abdullah Al-Ahwani, Al-Qirawan District, Riyadh 13531/);
+  assert.match(html, EMAIL);
+  assert.match(html, LOCATION_EN);
   assert.match(html, /maps\/dir\/\/Tiara\+Catering/);
   assert.match(html, /href="http:\/\/bakerisbakery\.com\/"/);
   assert.match(html, /href="https:\/\/elementsduchocolat\.com\/"/);
@@ -127,11 +148,11 @@ test("prerenders conversion-focused English and Arabic menu pages", async () => 
   assert.match(english, /Request quotation/);
   assert.match(english, /application\/ld\+json/);
   assert.match(english, /linkedin\.com\/company\/tiara-catering/);
-  assert.match(english, /href="tel:920005600"/);
-  assert.match(english, /href="https:\/\/wa\.me\/966920020062"/);
+  assert.match(english, CALL_HREF);
+  assert.match(english, WHATSAPP_HREF);
   assert.doesNotMatch(english, /966112733888|11 273 3888/);
-  assert.match(english, /Abdullah Al-Ahwani, Al-Qirawan District, Riyadh 13531/);
-  assert.match(arabic, /عبدالله الأحواني، حي القيروان، الرياض 13531/);
+  assert.match(english, LOCATION_EN);
+  assert.match(arabic, LOCATION_AR);
   assert.match(arabic, /x\.com\/Tiaracateriing/);
   assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
   assert.match(arabic, /القائمة الأولى/);
