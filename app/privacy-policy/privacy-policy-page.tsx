@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import {
   CALL_DISPLAY,
   CALL_HREF,
@@ -551,10 +551,10 @@ export default function PrivacyPolicyPage({
       </section>
 
       <div className="privacy-back">
-        <a href="/">
+        <Link href={lang === "ar" ? "/ar" : "/"}>
           <span aria-hidden="true">{lang === "ar" ? "→" : "←"}</span>
           {t.back}
-        </a>
+        </Link>
       </div>
     </main>
   );
