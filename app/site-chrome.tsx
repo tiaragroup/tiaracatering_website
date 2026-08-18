@@ -121,7 +121,7 @@ function ChromeLink({ href, children, onClick, ...rest }: AnchorHTMLAttributes<H
         document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
-    return <a href={href} onClick={followSection} {...rest}>{children}</a>;
+    return <a href={href} className="font-ar-15" onClick={followSection} {...rest}>{children}</a>;
   }
   const navigate = (event: React.MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event);
@@ -242,7 +242,10 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       <div className="footer-brand"><img src="/tiara-logo.png" alt="Tiara Catering" /><p>{t.footerBody}</p></div>
       <div>
         <span>{t.connect}</span>
-        <a href={CALL_HREF}>{t.call}: {CALL_DISPLAY}</a>
+     <a href={CALL_HREF} className="footer-phone">
+  <span>{t.call}:</span>
+  <span className="phone-number">{CALL_DISPLAY}</span>
+</a>
         <a href={EMAIL_HREF}>{EMAIL}</a>
         <a className="footer-address" href={LOCATION_MAP_URL} target="_blank" rel="noopener noreferrer">{t.location}</a>
         {socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}
