@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, WHATSAPP_URL } from "./contact-details";
 
 type Lang = "en" | "ar";
@@ -63,17 +63,97 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   const t = copy[lang];
   const [activeService, setActiveService] = useState(0);
   const [quote, setQuote] = useState(0);
-  const [lightbox, setLightbox] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<number | null>(null);
+const touchStartX = useRef<number | null>(null);
+const touchEndX = useRef<number | null>(null);
+
+const nextImage = () => {
+  setLightbox((current) =>
+    current === null ? null : (current + 1) % gallery.length
+  );
+};
+
+const previousImage = () => {
+  setLightbox((current) =>
+    current === null
+      ? null
+      : (current - 1 + gallery.length) % gallery.length
+  );
+};
+
+const handleTouchStart = (event: React.TouchEvent) => {
+  touchEndX.current = null;
+  touchStartX.current = event.targetTouches[0].clientX;
+};
+
+const handleTouchMove = (event: React.TouchEvent) => {
+  touchEndX.current = event.targetTouches[0].clientX;
+};
+
+const handleTouchEnd = () => {
+  if (
+    touchStartX.current === null ||
+    touchEndX.current === null
+  ) {
+    return;
+  }
+
+  const distance = touchStartX.current - touchEndX.current;
+
+  // Prevent tiny movements from changing image
+  const minimumSwipeDistance = 50;
+
+  if (distance > minimumSwipeDistance) {
+    // Swipe left → next
+    nextImage();
+  } else if (distance < -minimumSwipeDistance) {
+    // Swipe right → previous
+    previousImage();
+  }
+
+  touchStartX.current = null;
+  touchEndX.current = null;
+};
+
+  useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setLightbox(null);
+    }
+
+    if (event.key === "ArrowLeft") {
+      setLightbox((current) =>
+        current === null
+          ? null
+          : (current - 1 + gallery.length) % gallery.length
+      );
+    }
+
+    if (event.key === "ArrowRight") {
+      setLightbox((current) =>
+        current === null
+          ? null
+          : (current + 1) % gallery.length
+      );
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => setQuote((q) => (q + 1) % t.testimonials.length), 7000);
     return () => window.clearInterval(timer);
   }, [t.testimonials.length]);
-  useEffect(() => {
-    const close = (event: KeyboardEvent) => event.key === "Escape" && setLightbox(null);
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
-  }, []);
+  // useEffect(() => {
+  //   const close = (event: KeyboardEvent) => event.key === "Escape" && setLightbox(null);
+  //   window.addEventListener("keydown", close);
+  //   return () => window.removeEventListener("keydown", close);
+  // }, []);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -98,7 +178,42 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
 
       <section className="signature"><div className="signature-copy"><p className="kicker">{t.signatureTag}</p><h2>{t.signatureTitle}</h2><p>{t.signatureBody}</p><a className="pill gold" href="#contact">{t.start}<span>↗</span></a></div><div className="process">{t.process.map(([title, desc], i) => <article key={title}><small>{["I", "II", "III", "IV", "V"][i]}</small><h3>{title}</h3><p>{desc}</p></article>)}</div></section>
 
-      <section id="gallery" className="gallery section-wide"><div className="section-head gallery-head"><div><p className="kicker">{t.galleryTag}</p><h2>{t.galleryTitle}</h2></div><p>{t.galleryHint}</p></div><div className="gallery-rail">{gallery.map((src, i) => <button onClick={() => setLightbox(src)} aria-label={lang === "ar" ? `فتح صورة المعرض ${i + 1}` : `Open gallery image ${i + 1}`} key={src}><img src={src} alt={lang === "ar" ? `تفاصيل من مناسبات تيارا ${i + 1}` : `Tiara Catering event detail ${i + 1}`} loading="lazy" /><span>0{i + 1}</span></button>)}</div></section>
+    <section id="gallery" className="gallery section-wide">
+  <div className="section-head gallery-head">
+    <div>
+      <p className="kicker">{t.galleryTag}</p>
+      <h2>{t.galleryTitle}</h2>
+    </div>
+
+    <p>{t.galleryHint}</p>
+  </div>
+
+  <div className="gallery-rail">
+    {gallery.map((src, i) => (
+      <button
+        onClick={() => setLightbox(i)}
+        aria-label={
+          lang === "ar"
+            ? `فتح صورة المعرض ${i + 1}`
+            : `Open gallery image ${i + 1}`
+        }
+        key={src}
+      >
+        <img
+          src={src}
+          alt={
+            lang === "ar"
+              ? `تفاصيل من مناسبات تيارا ${i + 1}`
+              : `Tiara Catering event detail ${i + 1}`
+          }
+          loading="lazy"
+        />
+
+        <span>0{i + 1}</span>
+      </button>
+    ))}
+  </div>
+</section>
 
       <section id="brands" className="section brands"><div className="section-head"><div><p className="kicker">{t.brandsTag}</p><h2>{t.brandsTitle}</h2></div></div><div className="brand-grid">{t.brands.map(([title, tag, desc, image, url], i) => { const content = <><div className="brand-image"><span>0{i + 1}</span><img src={`/images/${image}`} alt={title} loading="lazy" /></div><small>{tag}</small><div className="brand-card-heading"><h3>{title}</h3>{url && <span aria-hidden="true">↗</span>}</div><p>{desc}</p></>; return url ? <a className="brand-card linked" href={url} target="_blank" rel="noopener noreferrer" aria-label={`${title} — ${lang === "ar" ? "زيارة الموقع" : "Visit website"}`} key={title}>{content}</a> : <article className="brand-card" key={title}>{content}</article>; })}</div></section>
 
@@ -107,6 +222,61 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
       <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold" href="#contact">{t.quote}<span>↗</span></a></div></section>
 
       <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date" /></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} placeholder={t.details} /></div><div className="form-submit"><button className="pill dark" type="submit">{t.send}<span>↗</span></button><small>{t.response}</small></div></form></section>
-    {lightbox &&<div className="lightbox" role="dialog" aria-modal="true" aria-label={t.galleryTag}><button aria-label={t.close} onClick={() => setLightbox(null)}>×</button><img src={lightbox} alt="" /></div>}
+  {lightbox !== null && (
+  <div
+    className="lightbox"
+    role="dialog"
+    aria-modal="true"
+    aria-label={t.galleryTag}
+    onTouchStart={handleTouchStart}
+    onTouchMove={handleTouchMove}
+    onTouchEnd={handleTouchEnd}
+  >
+    <button
+      className="lightbox-close"
+      aria-label={t.close}
+      onClick={() => setLightbox(null)}
+    >
+      ×
+    </button>
+
+    <button
+      className="lightbox-nav lightbox-prev"
+      aria-label={
+        lang === "ar" ? "الصورة السابقة" : "Previous image"
+      }
+      onClick={previousImage}
+    >
+      ←
+    </button>
+
+    <div className="lightbox-image-wrapper">
+      <img
+        key={lightbox}
+        src={gallery[lightbox]}
+        alt={
+          lang === "ar"
+            ? `صورة المعرض ${lightbox + 1}`
+            : `Gallery image ${lightbox + 1}`
+        }
+        draggable={false}
+      />
+    </div>
+
+    <button
+      className="lightbox-nav lightbox-next"
+      aria-label={
+        lang === "ar" ? "الصورة التالية" : "Next image"
+      }
+      onClick={nextImage}
+    >
+      →
+    </button>
+
+    <div className="lightbox-counter">
+      {lightbox + 1} / {gallery.length}
+    </div>
+  </div>
+)}
   </main>;
 }
