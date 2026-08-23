@@ -1,0 +1,64 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+    }
+
+    function validString(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    function validQuotation() {
+      let data = request.resource.data;
+      return data.keys().hasAll([
+          'customerName', 'phone', 'email', 'eventType', 'eventDate',
+          'guestCount', 'details', 'menuId', 'menuName', 'menuPriceSar',
+          'source', 'locale', 'privacyAccepted', 'status', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'customerName', 'phone', 'email', 'eventType', 'eventDate',
+          'guestCount', 'details', 'menuId', 'menuName', 'menuPriceSar',
+          'source', 'locale', 'privacyAccepted', 'status', 'createdAt'
+        ])
+        && validString(data.customerName, 2, 100)
+        && validString(data.phone, 7, 25)
+        && data.phone.matches('^[0-9+() -]+$')
+        && data.email is string && data.email.size() <= 254
+        && validString(data.eventType, 2, 100)
+        && data.eventDate is string && data.eventDate.size() <= 10
+        && data.guestCount is int && data.guestCount >= 0 && data.guestCount <= 5000
+        && data.details is string && data.details.size() <= 2000
+        && data.menuId is string && data.menuId.size() <= 40
+        && data.menuName is string && data.menuName.size() <= 100
+        && data.menuPriceSar is int && data.menuPriceSar >= 0 && data.menuPriceSar <= 100000
+        && data.source in ['homepage', 'menus']
+        && data.locale in ['en', 'ar']
+        && data.privacyAccepted == true
+        && data.status == 'new'
+        && data.createdAt == request.time;
+    }
+
+    match /quotations/{quotationId} {
+      allow create: if validQuotation();
+      allow read: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['new', 'contacted', 'quoted', 'won', 'lost']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+
+    match /admins/{adminId} {
+      allow get: if signedIn() && request.auth.uid == adminId;
+      allow list, create, update, delete: if false;
+    }
+  }
+}

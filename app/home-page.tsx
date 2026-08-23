@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, WHATSAPP_URL } from "./contact-details";
+import { createQuotation } from "./quotation-service";
 
 type Lang = "en" | "ar";
 const gallery = ["7-1", "1", "3", "8", "2", "4", "6"].map((n) => `/images/cooking-classes-${n}.jpg`);
@@ -33,7 +35,7 @@ const copy = {
     testimonialTag: "Client notes", testimonialTitle: <>Hospitality people <em>remember</em></>,
     testimonials: [["Customer service responds quickly and helps you understand everything. I highly recommend Tiara for events, big or small.", "Loubnah", "Private event"], ["Professional and wonderful treatment. The food was delicious, and the customer service was exceptional.", "Mona", "Special occasion"], ["Delicious food, excellent cooking, high quality — and very precise with delivery time.", "Mohammad", "Corporate catering"], ["Distinguished service and delicious food. A unique experience from beginning to end.", "Johara", "Family celebration"]],
     ctaTag: "Begin with your occasion", ctaTitle: <>A table that brings<br />everyone <em>together.</em></>, ctaBody: "Tell us who you’re gathering and how you want it to feel. We’ll create the menu, service and details around your occasion.",
-    formTitle: <>Tell us about your <em>occasion</em></>, fields: ["Full name", "Phone", "Email", "Event type", "Event date", "Guests", "Details"], eventOptions: ["Select an event", "Corporate event", "Wedding or gala", "Special event", "Cooking class", "Other"], details: "Location, service style, dietary needs or anything else", send: "Send request on WhatsApp", response: "Usually replies during business hours", contactTag: "Direct contact", address: "2744 Abdullah Al-Ahwani Street, Al Qirawan District, RRQA6432, 6432, Riyadh 13531, Saudi Arabia", whatsapp: "WhatsApp us",
+    formTitle: <>Tell us about your <em>occasion</em></>, fields: ["Full name", "Phone", "Email", "Event type", "Event date", "Guests", "Details"], eventOptions: ["Select an event", "Corporate event", "Wedding or gala", "Special event", "Cooking class", "Other"], details: "Location, service style, dietary needs or anything else", send: "Submit quotation request", sending: "Submitting…", response: "A Tiara event specialist will review your request.", success: "Request received. Your reference is", error: "We could not submit your request. Please try again.", consent: "I agree to the Privacy Policy and to being contacted about this request.", contactTag: "Direct contact", address: "2744 Abdullah Al-Ahwani Street, Al Qirawan District, RRQA6432, 6432, Riyadh 13531, Saudi Arabia", whatsapp: "WhatsApp us",
   },
   ar: {
     dir: "rtl", close: "إغلاق",
@@ -55,7 +57,7 @@ const copy = {
     testimonialTag: "آراء العملاء", testimonialTitle: <>ضيافة تبقى <em>في الذاكرة</em></>,
     testimonials: [["خدمة العملاء سريعة وتساعدك على فهم كل شيء. أنصح بتيارا للمناسبات الكبيرة والصغيرة.", "لبنى", "مناسبة خاصة"], ["تعامل احترافي ورائع، والطعام لذيذ جداً وخدمة العملاء استثنائية.", "منى", "مناسبة خاصة"], ["طعام لذيذ وطهي ممتاز وجودة عالية ودقة كبيرة في وقت التسليم.", "محمد", "ضيافة مؤسسية"], ["خدمة متميزة وطعام لذيذ. تجربة فريدة من البداية إلى النهاية.", "جوهرة", "احتفال عائلي"]],
     ctaTag: "نبدأ من مناسبتك", ctaTitle: <>مائدة تجمعكم.<br /><em>وذكرى تبقى.</em></>, ctaBody: "شاركنا ضيوفك وتفاصيل مناسبتك، ونصمم لك قائمة وخدمة وتجربة تليق باللحظة.",
-    formTitle: <>حدّثنا عن <em>مناسبتك</em></>, fields: ["الاسم الكامل", "الجوال", "البريد الإلكتروني", "نوع المناسبة", "تاريخ المناسبة", "عدد الضيوف", "التفاصيل"], eventOptions: ["اختر المناسبة", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "درس طهي", "أخرى"], details: "الموقع وأسلوب الخدمة والاحتياجات الغذائية وأي تفاصيل أخرى", send: "إرسال الطلب عبر واتساب", response: "نرد عادة خلال ساعات العمل", contactTag: "تواصل مباشر", address: "2744 عبدالله الأهواني, حي القيروان", whatsapp: "تواصل عبر واتساب",
+    formTitle: <>حدّثنا عن <em>مناسبتك</em></>, fields: ["الاسم الكامل", "الجوال", "البريد الإلكتروني", "نوع المناسبة", "تاريخ المناسبة", "عدد الضيوف", "التفاصيل"], eventOptions: ["اختر المناسبة", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "درس طهي", "أخرى"], details: "الموقع وأسلوب الخدمة والاحتياجات الغذائية وأي تفاصيل أخرى", send: "إرسال طلب عرض السعر", sending: "جارٍ الإرسال…", response: "سيقوم مختص مناسبات من تيارا بمراجعة طلبك.", success: "تم استلام طلبك. الرقم المرجعي", error: "تعذر إرسال طلبك. يرجى المحاولة مرة أخرى.", consent: "أوافق على سياسة الخصوصية وعلى التواصل معي بخصوص هذا الطلب.", contactTag: "تواصل مباشر", address: "2744 عبدالله الأهواني, حي القيروان", whatsapp: "تواصل عبر واتساب",
   },
 } as const;
 
@@ -63,6 +65,7 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   const t = copy[lang];
   const [activeService, setActiveService] = useState(0);
   const [quote, setQuote] = useState(0);
+  const [submission, setSubmission] = useState<{ state: "idle" | "sending" | "success" | "error"; reference?: string }>({ state: "idle" });
   const [lightbox, setLightbox] = useState<number | null>(null);
 const touchStartX = useRef<number | null>(null);
 const touchEndX = useRef<number | null>(null);
@@ -155,13 +158,54 @@ const handleTouchEnd = () => {
   //   return () => window.removeEventListener("keydown", close);
   // }, []);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const lines = lang === "ar"
-      ? [`طلب ضيافة جديد`, `الاسم: ${data.get("name")}`, `الجوال: ${data.get("phone")}`, `البريد: ${data.get("email")}`, `المناسبة: ${data.get("event")}`, `التاريخ: ${data.get("date")}`, `الضيوف: ${data.get("guests")}`, `التفاصيل: ${data.get("details")}`]
-      : [`New catering enquiry`, `Name: ${data.get("name")}`, `Phone: ${data.get("phone")}`, `Email: ${data.get("email")}`, `Event: ${data.get("event")}`, `Date: ${data.get("date")}`, `Guests: ${data.get("guests")}`, `Details: ${data.get("details")}`];
-    window.open(`${WHATSAPP_URL}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+    const formElement = event.currentTarget;
+    const data = new FormData(formElement);
+    setSubmission({ state: "sending" });
+    try {
+      const reference = await createQuotation({
+        customerName: String(data.get("name") ?? ""),
+        phone: String(data.get("phone") ?? ""),
+        email: String(data.get("email") ?? ""),
+        eventType: String(data.get("event") ?? ""),
+        eventDate: String(data.get("date") ?? ""),
+        guestCount: Number(data.get("guests") || 0),
+        details: String(data.get("details") ?? ""),
+        source: "homepage",
+        locale: lang,
+        privacyAccepted: true,
+      });
+      setSubmission({ state: "success", reference });
+      const value = (field: string) => String(data.get(field) || "-");
+      const lines = lang === "ar"
+        ? [
+            "طلب عرض سعر جديد — تيارا للضيافة",
+            `الرقم المرجعي: ${reference}`,
+            `الاسم: ${value("name")}`,
+            `الجوال: ${value("phone")}`,
+            `البريد الإلكتروني: ${value("email")}`,
+            `نوع المناسبة: ${value("event")}`,
+            `تاريخ المناسبة: ${value("date")}`,
+            `عدد الضيوف: ${value("guests")}`,
+            `التفاصيل: ${value("details")}`,
+          ]
+        : [
+            "New quotation request — Tiara Catering",
+            `Reference: ${reference}`,
+            `Name: ${value("name")}`,
+            `Phone: ${value("phone")}`,
+            `Email: ${value("email")}`,
+            `Event type: ${value("event")}`,
+            `Event date: ${value("date")}`,
+            `Guests: ${value("guests")}`,
+            `Details: ${value("details")}`,
+          ];
+      window.open(`${WHATSAPP_URL}?text=${encodeURIComponent(lines.join("\n"))}`, "_self");
+    } catch (error) {
+      console.error("Quotation submission failed", error);
+      setSubmission({ state: "error" });
+    }
   }
 
   return <main dir={t.dir} className={`site-shell ${lang}`}>
@@ -238,7 +282,7 @@ const handleTouchEnd = () => {
 
       <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold font-ar-15" href="#contact">{t.quote} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div></section>
 
-      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date" /></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} placeholder={t.details} /></div><div className="form-submit"><button className="pill dark font-ar-15" type="submit">{t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small>{t.response}</small></div></form></section>
+      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date" /></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
   {lightbox !== null && (
   <div
     className="lightbox"

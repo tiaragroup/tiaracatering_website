@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const BASE_URL = "https://chat.bevatel.com";
 const WEBSITE_TOKEN = "jt1XoePxNBfjVAcH3Yg2YNAW";
@@ -12,7 +13,10 @@ type BevatelWindow = Window & {
 };
 
 export default function BevatelChat() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (pathname === "/admin" || pathname.startsWith("/admin/")) return;
     const bevatelWindow = window as BevatelWindow;
     const startChat = () => bevatelWindow.socialAppSDK?.run({ websiteToken: WEBSITE_TOKEN, baseUrl: BASE_URL });
     const existingScript = document.querySelector<HTMLScriptElement>('script[data-bevatel-sdk="true"]');
@@ -36,7 +40,7 @@ export default function BevatelChat() {
     document.head.appendChild(script);
 
     return () => script.removeEventListener("load", startChat);
-  }, []);
+  }, [pathname]);
 
   return null;
 }

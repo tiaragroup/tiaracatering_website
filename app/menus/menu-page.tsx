@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { WHATSAPP_URL } from "../contact-details";
+import { createQuotation } from "../quotation-service";
 import { countItems, faqsFor, formatNumber, type Lang, lowestPrice, menusFor } from "./menu-data";
 
 const DEFAULT_MENU = 1;
@@ -22,8 +24,8 @@ const ui = {
     fit: ["A generous, versatile foundation", "More variety for elevated occasions", "Our fullest signature selection"],
     dishes: "listed dishes & beverages", selections: "selections", courses: "courses",
     detailTag: "Full menu detail", detailTitle: "Everything included in", servingNote: "Menu selections and pricing are subject to availability and final event requirements.",
-    quoteCardTag: "Build your enquiry", quoteCardTitle: "Get a tailored proposal", quoteCardBody: "Tell us the essentials. We’ll open WhatsApp with a complete request ready for you to send.",
-    guests: "Number of guests", date: "Event date", event: "Event type", eventOptions: ["Private gathering", "Corporate event", "Wedding or gala", "Special event", "Other"], note: "Anything we should know?", notePlaceholder: "Venue, dietary needs, service style…", send: "Request this menu", reply: "A Tiara event specialist will review your request.",
+    quoteCardTag: "Build your enquiry", quoteCardTitle: "Get a tailored proposal", quoteCardBody: "Share the essentials and your request will be sent securely to Tiara’s event team.",
+    name: "Full name", phone: "Phone", email: "Email (optional)", guests: "Number of guests", date: "Event date", event: "Event type", eventOptions: ["Private gathering", "Corporate event", "Wedding or gala", "Special event", "Other"], note: "Anything we should know?", notePlaceholder: "Venue, dietary needs, service style…", send: "Request this menu", sending: "Submitting…", reply: "A Tiara event specialist will review your request.", success: "Request received. Your reference is", error: "We could not submit your request. Please try again.", consent: "I agree to the Privacy Policy and to being contacted about this request.",
     whyTag: "Why Tiara", whyTitle: <>A menu is only the <em>beginning.</em></>, why: [["Tailored guidance", "We help align the menu with your guests, venue and occasion."], ["One point of contact", "Clear coordination from the first conversation through event day."], ["Considered presentation", "Food, service and styling designed to feel like one experience."]],
     faqTag: "Good to know", faqTitle: "Before you request a quote",
     finalTitle: <>Your guests remember the feeling.<br /><em>Let’s shape it together.</em></>, finalBody: "Choose a menu, share your event details and let Tiara turn the brief into a considered proposal.",
@@ -39,8 +41,8 @@ const ui = {
     fit: ["أساس متنوع وسخي", "تنوع أكبر للمناسبات الراقية", "تجربتنا الأكثر اكتمالاً"],
     dishes: "طبقاً ومشروباً", selections: "اختياراً", courses: "أقسام",
     detailTag: "تفاصيل القائمة", detailTitle: "كل ما تتضمنه", servingNote: "اختيارات القوائم والأسعار خاضعة للتوفر ومتطلبات المناسبة النهائية.",
-    quoteCardTag: "جهّز طلبك", quoteCardTitle: "احصل على عرض مخصص", quoteCardBody: "شاركنا المعلومات الأساسية وسنفتح واتساب بطلب متكامل وجاهز للإرسال.",
-    guests: "عدد الضيوف", date: "تاريخ المناسبة", event: "نوع المناسبة", eventOptions: ["لقاء خاص", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "أخرى"], note: "أي تفاصيل مهمة؟", notePlaceholder: "الموقع، الاحتياجات الغذائية، أسلوب الخدمة…", send: "اطلب هذه القائمة", reply: "سيقوم مختص مناسبات من تيارا بمراجعة طلبك.",
+    quoteCardTag: "جهّز طلبك", quoteCardTitle: "احصل على عرض مخصص", quoteCardBody: "شاركنا المعلومات الأساسية وسيتم إرسال طلبك بأمان إلى فريق مناسبات تيارا.",
+    name: "الاسم الكامل", phone: "رقم الجوال", email: "البريد الإلكتروني (اختياري)", guests: "عدد الضيوف", date: "تاريخ المناسبة", event: "نوع المناسبة", eventOptions: ["لقاء خاص", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "أخرى"], note: "أي تفاصيل مهمة؟", notePlaceholder: "الموقع، الاحتياجات الغذائية، أسلوب الخدمة…", send: "اطلب هذه القائمة", sending: "جارٍ الإرسال…", reply: "سيقوم مختص مناسبات من تيارا بمراجعة طلبك.", success: "تم استلام طلبك. الرقم المرجعي", error: "تعذر إرسال طلبك. يرجى المحاولة مرة أخرى.", consent: "أوافق على سياسة الخصوصية وعلى التواصل معي بخصوص هذا الطلب.",
     whyTag: "لماذا تيارا", whyTitle: <>القائمة ليست سوى <em>البداية.</em></>, why: [["إرشاد مخصص", "نساعدك في مواءمة القائمة مع ضيوفك وموقعك ومناسبتك."], ["نقطة اتصال واحدة", "تنسيق واضح من المحادثة الأولى وحتى يوم المناسبة."], ["تقديم مدروس", "الطعام والخدمة والتنسيق مصممة لتبدو كتجربة واحدة."]],
     faqTag: "معلومات مهمة", faqTitle: "قبل طلب عرض السعر",
     finalTitle: <>يتذكر ضيوفك الإحساس.<br /><em>فلنصنعه معاً.</em></>, finalBody: "اختر قائمتك وشارك تفاصيل المناسبة ودع تيارا تحول فكرتك إلى عرض مدروس.",
@@ -55,6 +57,7 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
   const hash = useSyncExternalStore(subscribeToHash, readHash, readNoHash);
   const linked = menus.findIndex((pkg) => pkg.id === hash);
   const [picked, setPicked] = useState<number | null>(null);
+  const [submission, setSubmission] = useState<{ state: "idle" | "sending" | "success" | "error"; reference?: string }>({ state: "idle" });
   const selected = picked ?? (linked >= 0 ? linked : DEFAULT_MENU);
   const menu = menus[selected];
   const dateInput = useRef<HTMLInputElement>(null);
@@ -71,13 +74,61 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
     requestAnimationFrame(() => document.getElementById("menu-detail")?.scrollIntoView({ behavior, block: "start" }));
   }
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const lines = lang === "ar"
-      ? ["طلب عرض سعر لقائمة تيارا ٢٠٢٦", `القائمة: ${menu.name} — ${num(menu.price)} ر.س`, `عدد الضيوف: ${form.get("guests")}`, `التاريخ: ${form.get("date")}`, `نوع المناسبة: ${form.get("event")}`, `ملاحظات: ${form.get("note") || "-"}`]
-      : ["Tiara Catering 2026 menu quotation request", `Menu: ${menu.name} — SAR ${menu.price}`, `Guests: ${form.get("guests")}`, `Date: ${form.get("date")}`, `Event: ${form.get("event")}`, `Notes: ${form.get("note") || "-"}`];
-    window.open(`${WHATSAPP_URL}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener,noreferrer");
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    setSubmission({ state: "sending" });
+    try {
+      const reference = await createQuotation({
+        customerName: String(form.get("name") ?? ""),
+        phone: String(form.get("phone") ?? ""),
+        email: String(form.get("email") ?? ""),
+        guestCount: Number(form.get("guests") || 0),
+        eventDate: String(form.get("date") ?? ""),
+        eventType: String(form.get("event") ?? ""),
+        details: String(form.get("note") ?? ""),
+        menuId: menu.id,
+        menuName: menu.name,
+        menuPriceSar: menu.price,
+        source: "menus",
+        locale: lang,
+        privacyAccepted: true,
+      });
+      setSubmission({ state: "success", reference });
+      const value = (field: string) => String(form.get(field) || "-");
+      const lines = lang === "ar"
+        ? [
+            "طلب عرض سعر لقائمة تيارا",
+            `الرقم المرجعي: ${reference}`,
+            `الاسم: ${value("name")}`,
+            `الجوال: ${value("phone")}`,
+            `البريد الإلكتروني: ${value("email")}`,
+            `القائمة: ${menu.name}`,
+            `السعر الأساسي: ${num(menu.price)} ر.س`,
+            `عدد الضيوف: ${value("guests")}`,
+            `تاريخ المناسبة: ${value("date")}`,
+            `نوع المناسبة: ${value("event")}`,
+            `التفاصيل: ${value("note")}`,
+          ]
+        : [
+            "Tiara Catering menu quotation request",
+            `Reference: ${reference}`,
+            `Name: ${value("name")}`,
+            `Phone: ${value("phone")}`,
+            `Email: ${value("email")}`,
+            `Menu: ${menu.name}`,
+            `Starting price: SAR ${menu.price}`,
+            `Guests: ${value("guests")}`,
+            `Event date: ${value("date")}`,
+            `Event type: ${value("event")}`,
+            `Details: ${value("note")}`,
+          ];
+      window.open(`${WHATSAPP_URL}?text=${encodeURIComponent(lines.join("\n"))}`, "_self");
+    } catch (error) {
+      console.error("Quotation submission failed", error);
+      setSubmission({ state: "error" });
+    }
   }
 
   return <main className={`menu-site ${lang}`} dir={t.dir}>
@@ -86,7 +137,7 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
 
     <section id="collection" className="menu-section menu-collection"><div className="menu-section-head"><div><p className="menu-kicker">{t.collectionTag}</p><h2>{t.collectionTitle}</h2></div><p>{t.collectionLead}</p></div><div className="package-grid">{menus.map((pkg, i) => <article id={pkg.id} className={`${selected === i ? "selected" : ""} ${i === 1 ? "featured" : ""}`} key={pkg.id}>{pkg.badge && <span className="package-badge">{pkg.badge}</span>}<small aria-hidden="true">0{i + 1}</small><h3>{pkg.name}</h3><div className="package-price"><span>{t.from}</span><strong>{num(pkg.price)}</strong></div><p>{t.fit[i]}</p><span className="package-count">{num(counts[i])} {t.dishes}</span><ul>{pkg.categories.map((category) => <li key={category.title}>{category.title}<span>{num(category.items.length)}</span></li>)}</ul><button type="button" aria-pressed={selected === i} onClick={() => choose(i)}>{selected === i ? t.selected : t.view}<span aria-hidden="true">{selected === i ? "✓" : "→"}</span></button></article>)}</div></section>
 
-    <section id="menu-detail" className="menu-detail"><div className="detail-heading" aria-live="polite"><p className="menu-kicker">{t.detailTag}</p><h2>{t.detailTitle} <em>{menu.name}</em></h2><div className="detail-meta"><span>{num(counts[selected])} {t.selections}</span><span>{num(menu.categories.length)} {t.courses}</span><span>{t.from} {num(menu.price)}</span></div></div><div className="detail-layout"><div className="course-list">{menu.categories.map((category, categoryIndex) => <section id={`${menu.id}-course-${categoryIndex}`} key={category.title}><header><span aria-hidden="true">0{categoryIndex + 1}</span><h3>{category.title}</h3><small>{num(category.items.length)}</small></header><ul>{category.items.map((item) => <li key={item}><span>{item}</span><i aria-hidden="true" /></li>)}</ul></section>)}</div><aside id="quotation" className="quote-builder"><p className="menu-kicker">{t.quoteCardTag}</p><h3>{t.quoteCardTitle}</h3><p>{t.quoteCardBody}</p><div className="chosen-menu"><span>{menu.name}</span><strong>{t.from} {num(menu.price)}</strong></div><form onSubmit={submit}><label>{t.guests}<input name="guests" type="number" inputMode="numeric" min="1" max="5000" required placeholder="50" /></label><label>{t.date}<input ref={dateInput} name="date" type="date" required /></label><label>{t.event}<select name="event" required>{t.eventOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>{t.note}<textarea name="note" rows={3} placeholder={t.notePlaceholder} /></label><button className="menu-pill gold" type="submit">{t.send}<span aria-hidden="true">↗</span></button><small>{t.reply}</small></form></aside></div><p className="serving-note">{t.servingNote}</p></section>
+    <section id="menu-detail" className="menu-detail"><div className="detail-heading" aria-live="polite"><p className="menu-kicker">{t.detailTag}</p><h2>{t.detailTitle} <em>{menu.name}</em></h2><div className="detail-meta"><span>{num(counts[selected])} {t.selections}</span><span>{num(menu.categories.length)} {t.courses}</span><span>{t.from} {num(menu.price)}</span></div></div><div className="detail-layout"><div className="course-list">{menu.categories.map((category, categoryIndex) => <section id={`${menu.id}-course-${categoryIndex}`} key={category.title}><header><span aria-hidden="true">0{categoryIndex + 1}</span><h3>{category.title}</h3><small>{num(category.items.length)}</small></header><ul>{category.items.map((item) => <li key={item}><span>{item}</span><i aria-hidden="true" /></li>)}</ul></section>)}</div><aside id="quotation" className="quote-builder"><p className="menu-kicker">{t.quoteCardTag}</p><h3>{t.quoteCardTitle}</h3><p>{t.quoteCardBody}</p><div className="chosen-menu"><span>{menu.name}</span><strong>{t.from} {num(menu.price)}</strong></div><form onSubmit={submit}><label>{t.name}<input name="name" autoComplete="name" minLength={2} maxLength={100} required /></label><label>{t.phone}<input name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></label><label>{t.email}<input name="email" type="email" autoComplete="email" maxLength={254} /></label><label>{t.guests}<input name="guests" type="number" inputMode="numeric" min="1" max="5000" required placeholder="50" /></label><label>{t.date}<input ref={dateInput} name="date" type="date" required /></label><label>{t.event}<select name="event" required>{t.eventOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>{t.note}<textarea name="note" rows={3} maxLength={2000} placeholder={t.notePlaceholder} /></label><label className="quote-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><button className="menu-pill gold" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send}<span aria-hidden="true">↗</span></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.reply}</small></form></aside></div><p className="serving-note">{t.servingNote}</p></section>
 
     <section className="menu-why menu-section"><div className="menu-section-head"><div><p className="menu-kicker">{t.whyTag}</p><h2>{t.whyTitle}</h2></div></div><div>{t.why.map(([title, desc], i) => <article key={title}><span aria-hidden="true">0{i + 1}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></section>
 
