@@ -4,7 +4,7 @@ import { CALL_NUMBER } from "./contact-details";
 const schema = {
   "@context": "https://schema.org", "@type": "FoodService", name: "Tiara Catering",
   url: "https://tiaracatering.com/", logo: "https://tiaracatering.com/tiara-logo.png",
-  image: "https://tiaracatering.com/images/cooking-classes-7-1.jpg", telephone: CALL_NUMBER,
+  image: "https://tiaracatering.com/images/tiara-catering-hero-section-table.jpeg", telephone: CALL_NUMBER,
   email: "info@tiaracatering.com", priceRange: "$$$", servesCuisine: ["Saudi", "International"],
   address: { "@type": "PostalAddress", streetAddress: "7982 King Fahad Road, Olaya District", addressLocality: "Riyadh", addressCountry: "SA" },
   areaServed: { "@type": "City", name: "Riyadh" },

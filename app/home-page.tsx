@@ -21,11 +21,11 @@ const copy = {
     highlights: [["Saudi heritage, modern craft", "Traditional recipes reinterpreted with contemporary technique and plating."], ["One team, every detail", "Kitchen, styling, staffing and logistics under one trusted point of contact."], ["Three specialty houses", "Florals, bakery and chocolate in-house — one supplier for the whole table."]],
     servicesTag: "What we do", servicesTitle: <>Five ways to <em>host well</em></>, servicesLead: "Every line is handled end to end, from your first tasting to the last plate cleared.",
     services: [
-      ["Corporate Events", "Business events delivered with precision, punctuality and menus shaped around your objectives.", "7-1"],
-      ["Weddings & Galas", "Complete celebration catering with exceptional food, elegant styling and gracious service.", "1"],
-      ["Special Events", "Distinctive menus and polished hospitality for intimate gatherings and grand occasions.", "8"],
-      ["Cooking Classes", "Memorable hands-on experiences led by Tiara’s professional chefs.", "3"],
-      ["Event Consulting", "Concept, planning, vendor coordination and on-site management in one place.", "2"],
+      ["Corporate Events", "Business events delivered with precision, punctuality and menus shaped around your objectives.", "/images/tiara-catering-hero-section-table.jpeg"],
+      ["Weddings & Galas", "Complete celebration catering with exceptional food, elegant styling and gracious service.", "/images/cooking-classes-1.jpg"],
+      ["Special Events", "Distinctive menus and polished hospitality for intimate gatherings and grand occasions.", "/images/cooking-classes-8.jpg"],
+      ["Cooking Classes", "Memorable hands-on experiences led by Tiara’s professional chefs.", "/images/cooking-classes-3.jpg"],
+      ["Event Consulting", "Concept, planning, vendor coordination and on-site management in one place.", "/images/cooking-classes-2.jpg"],
     ],
     signatureTag: "The signature experience", signatureTitle: <>We take care of <em>all the details</em></>, signatureBody: "Our event consulting pairs expert advice with flawless execution, tailored to your occasion, venue and guests.", start: "Start planning",
     process: [["Discover", "We listen first — guests, setting, mood and the story you want told."], ["Plan", "Menus, staffing and timings mapped against your budget and venue."], ["Design", "Tablescape, service style and plating composed as one visual language."], ["Organise", "Vendor coordination and logistics handled so nothing lands on you."], ["Deliver", "On-site management and polished service from arrival to farewell."]],
@@ -48,7 +48,7 @@ const copy = {
     aboutBody: "مرحباً بكم في تيارا للضيافة، حيث يلتقي التميّز في الطهي بقلب التقاليد السعودية. من الرياض نصنع تجارب ضيافة لا تُنسى بروح دافئة وخيال معاصر.",
     highlights: [["إرث سعودي بحرفة حديثة", "وصفات تقليدية نعيد تقديمها بتقنيات ولمسات معاصرة."], ["فريق واحد لكل التفاصيل", "المطبخ والتنسيق والطاقم والخدمات اللوجستية عبر نقطة اتصال واحدة."], ["ثلاثة بيوت متخصصة", "الزهور والمخبوزات والشوكولاتة تحت سقف واحد لطاولة متكاملة."]],
     servicesTag: "خدماتنا", servicesTitle: <>خمس طرق <em>لضيافة أجمل</em></>, servicesLead: "نتولى كل خدمة من أول تذوق وحتى مغادرة آخر ضيف.",
-    services: [["فعاليات الشركات", "ضيافة احترافية دقيقة في المواعيد وقوائم مصممة حول أهدافكم.", "7-1"], ["الأعراس والحفلات", "خدمة متكاملة بطعام استثنائي وتنسيق أنيق وضيافة راقية.", "1"], ["المناسبات الخاصة", "قوائم مميزة وخدمة متقنة للقاءات الحميمة والاحتفالات الكبرى.", "8"], ["دروس الطهي", "تجارب عملية ممتعة بقيادة طهاة تيارا المحترفين.", "3"], ["استشارات الفعاليات", "الفكرة والتخطيط وتنسيق الموردين والإدارة الميدانية في مكان واحد.", "2"]],
+    services: [["فعاليات الشركات", "ضيافة احترافية دقيقة في المواعيد وقوائم مصممة حول أهدافكم.", "/images/tiara-catering-hero-section-table.jpeg"], ["الأعراس والحفلات", "خدمة متكاملة بطعام استثنائي وتنسيق أنيق وضيافة راقية.", "/images/cooking-classes-1.jpg"], ["المناسبات الخاصة", "قوائم مميزة وخدمة متقنة للقاءات الحميمة والاحتفالات الكبرى.", "/images/cooking-classes-8.jpg"], ["دروس الطهي", "تجارب عملية ممتعة بقيادة طهاة تيارا المحترفين.", "/images/cooking-classes-3.jpg"], ["استشارات الفعاليات", "الفكرة والتخطيط وتنسيق الموردين والإدارة الميدانية في مكان واحد.", "/images/cooking-classes-2.jpg"]],
     signatureTag: "تجربة تيارا", signatureTitle: <>نهتم <em>بكل التفاصيل</em></>, signatureBody: "تجمع استشاراتنا بين الخبرة والتنفيذ المتقن بما يناسب مناسبتكم وموقعها وضيوفها.", start: "ابدأ التخطيط",
     process: [["نكتشف", "نستمع أولاً إلى تفاصيل الضيوف والمكان والمزاج والقصة."], ["نخطط", "نرسم القوائم والطاقم والتوقيت بما يناسب الميزانية والموقع."], ["نصمم", "ننسّق الطاولة وأسلوب الخدمة والتقديم بلغة بصرية واحدة."], ["ننظّم", "نتولى الموردين والخدمات اللوجستية بالكامل."], ["ننفّذ", "إدارة ميدانية وخدمة متقنة من وصول الضيف حتى الوداع."]],
     galleryTag: "المعرض", galleryTitle: <>تقدم <em>بعناية</em></>, galleryHint: "اضغط على الصورة لاستعراضها",
@@ -221,7 +221,7 @@ const handleTouchEnd = () => {
     <ArrowDown size={15} strokeWidth={1.5} aria-hidden="true" />
   </a>
 </div><div className="stats">{t.proof.map(([value, label]) => <div className="flex-col" key={label}><strong>{value}</strong><span className="font-ar-15">{label}</span></div>)}</div></div>
-        <div className="hero-visual"><img className="hero-photo" src="/images/cooking-classes-7-1.jpg" alt={lang === "ar" ? "طبق فاخر من إعداد تيارا للضيافة في الرياض" : "Elegant plated course by Tiara Catering in Riyadh"} fetchPriority="high" /><div className="hero-shade" /><img className="mark" src="/tiara-mark.png" alt="" /><div className="availability"><i /><span className="font-ar-15">{lang === "ar" ? "نستقبل حجوزات المناسبات" : "Now booking private events"}</span></div></div>
+        <div className="hero-visual"><img className="hero-photo" src="/images/tiara-catering-hero-section-table.jpeg" alt={lang === "ar" ? "طبق فاخر من إعداد تيارا للضيافة في الرياض" : "Elegant plated course by Tiara Catering in Riyadh"} fetchPriority="high" /><div className="hero-shade" /><img className="mark" src="/tiara-mark.png" alt="" /><div className="availability"><i /><span className="font-ar-15">{lang === "ar" ? "نستقبل حجوزات المناسبات" : "Now booking private events"}</span></div></div>
       </section>
 
       <div className="ticker" aria-label={lang === "ar" ? "خدمات تيارا" : "Tiara services"}><div>{[...t.ticker, ...t.ticker].map((item, i) => <span key={`${item}-${i}`}>{item}<i /></span>)}</div></div>
@@ -230,7 +230,7 @@ const handleTouchEnd = () => {
 
       <section id="services" className="section services"><div className="section-head"><div><p className="kicker">{t.servicesTag}</p><h2>{t.servicesTitle}</h2></div><p>{t.servicesLead}</p></div><div className="services-grid"><div className="service-list">{t.services.map(([title, desc], i) => <a href="#contact" className={activeService === i ? "active" : ""} onMouseEnter={() => setActiveService(i)} onFocus={() => setActiveService(i)} key={title}><small>0{i + 1}</small><span><b className="font-ar-20">{title}</b><em className="font-ar-15">{desc}</em></span><i className="service-arrow">
   <ArrowUpRight size={17} strokeWidth={1.5} />
-</i></a>)}</div><figure><div className="service-image"><img src={`/images/cooking-classes-${t.services[activeService][2]}.jpg`} alt={t.services[activeService][0]} /></div><figcaption><span>0{activeService + 1}</span>{t.services[activeService][0]}</figcaption></figure></div></section>
+</i></a>)}</div><figure><div className="service-image"><img src={t.services[activeService][2]} alt={t.services[activeService][0]} /></div><figcaption><span>0{activeService + 1}</span>{t.services[activeService][0]}</figcaption></figure></div></section>
 
       <section className="signature"><div className="signature-copy"><p className="kicker">{t.signatureTag}</p><h2>{t.signatureTitle}</h2><p>{t.signatureBody}</p><a className="pill gold font-ar-15" href="#contact">{t.start} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div><div className="process">{t.process.map(([title, desc]) => <article key={title}><small></small><h3>{title}</h3><p className="font-ar-15">{desc}</p></article>)}</div></section>
 
