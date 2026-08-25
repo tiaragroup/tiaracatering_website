@@ -6,7 +6,10 @@ import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, WHATSAPP_URL } from "./cont
 import { createQuotation } from "./quotation-service";
 
 type Lang = "en" | "ar";
-const gallery = ["7-1", "1", "3", "8", "2", "4", "6"].map((n) => `/images/cooking-classes-${n}.jpg`);
+const gallery = [
+  "/images/tiara-catering-hero-section-table.jpeg",
+  ...["1", "3", "8", "2", "4", "6"].map((n) => `/images/cooking-classes-${n}.jpg`),
+];
 import { ArrowUpRight ,ArrowDown } from "lucide-react";
 const copy = {
   en: {
