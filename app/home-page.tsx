@@ -7,7 +7,7 @@ import { createQuotation } from "./quotation-service";
 
 type Lang = "en" | "ar";
 const gallery = [
-  "/images/tiara-catering-hero-section-table.jpeg",
+  "/images/tiara-catering-tables-showcase-event.webp",
   ...["1", "3", "8", "2", "4", "6"].map((n) => `/images/cooking-classes-${n}.jpg`),
 ];
 import { ArrowUpRight ,ArrowDown } from "lucide-react";
@@ -224,7 +224,7 @@ const handleTouchEnd = () => {
     <ArrowDown size={15} strokeWidth={1.5} aria-hidden="true" />
   </a>
 </div><div className="stats">{t.proof.map(([value, label]) => <div className="flex-col" key={label}><strong>{value}</strong><span className="font-ar-15">{label}</span></div>)}</div></div>
-        <div className="hero-visual"><img className="hero-photo" src="/images/tiara-catering-hero-section-table.jpeg" alt={lang === "ar" ? "طبق فاخر من إعداد تيارا للضيافة في الرياض" : "Elegant plated course by Tiara Catering in Riyadh"} fetchPriority="high" /><div className="hero-shade" /><img className="mark" src="/tiara-mark.png" alt="" /><div className="availability"><i /><span className="font-ar-15">{lang === "ar" ? "نستقبل حجوزات المناسبات" : "Now booking private events"}</span></div></div>
+        <div className="hero-visual"><img className="hero-photo" src="/images/tiara-catering-tables-showcase-event.webp" alt={lang === "ar" ? "طبق فاخر من إعداد تيارا للضيافة في الرياض" : "Elegant plated course by Tiara Catering in Riyadh"} fetchPriority="high" /><div className="hero-shade" /><img className="mark" src="/tiara-mark.png" alt="" /><div className="availability"><i /><span className="font-ar-15">{lang === "ar" ? "نستقبل حجوزات المناسبات" : "Now booking private events"}</span></div></div>
       </section>
 
       <div className="ticker" aria-label={lang === "ar" ? "خدمات تيارا" : "Tiara services"}><div>{[...t.ticker, ...t.ticker].map((item, i) => <span key={`${item}-${i}`}>{item}<i /></span>)}</div></div>
