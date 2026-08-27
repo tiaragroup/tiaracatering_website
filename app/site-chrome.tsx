@@ -1,5 +1,6 @@
 "use client";
 
+import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnchorHTMLAttributes, useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -7,6 +8,12 @@ import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, LOCATION_AR, LOCATION_EN, L
 import { socialLinks } from "./social-links";
 
 type Lang = "en" | "ar";
+type SocialLabel = (typeof socialLinks)[number]["label"];
+
+function SocialIcon({ label }: { label: SocialLabel }) {
+  const mark = label === "Facebook" ? "f" : label === "LinkedIn" ? "in" : label === "X" ? "𝕏" : "";
+  return <span className={`footer-social-icon ${label.toLowerCase()}`} aria-hidden="true">{mark}</span>;
+}
 
 const chrome = {
     en: {
@@ -248,8 +255,8 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 </a>
         <a href={EMAIL_HREF}>{EMAIL}</a>
         <a className="footer-address" href={LOCATION_MAP_URL} target="_blank" rel="noopener noreferrer">{t.location}</a>
-        {socialLinks.map(({ label, href }) => <a href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}>{label}</a>)}
-        <a href={WHATSAPP_URL}>WhatsApp</a>
+        {socialLinks.map(({ label, href }) => <a className="footer-social-link" href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}><SocialIcon label={label} /><span>{label}</span></a>)}
+        <a className="footer-social-link" href={WHATSAPP_URL}><MessageCircle size={16} strokeWidth={1.7} aria-hidden="true" /><span>WhatsApp</span></a>
       </div>
      <div>
       <span>{t.explore}</span>
