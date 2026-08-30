@@ -72,7 +72,12 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 const touchStartX = useRef<number | null>(null);
 const touchEndX = useRef<number | null>(null);
-
+const today = new Date();
+const minDate = [
+  today.getFullYear(),
+  String(today.getMonth() + 1).padStart(2, "0"),
+  String(today.getDate()).padStart(2, "0"),
+].join("-");
 const nextImage = () => {
   setLightbox((current) =>
     current === null ? null : (current + 1) % gallery.length
@@ -211,10 +216,18 @@ const handleTouchEnd = () => {
     }
   }
 
+  function scrollToQuotationFormOnMobile(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (!window.matchMedia("(max-width: 680px)").matches) return;
+    const form = document.getElementById("quotation-form");
+    if (!form) return;
+    event.preventDefault();
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return <main dir={t.dir} className={`site-shell ${lang}`}>
       <section id="top" className="hero">
         <div className="hero-copy"><p className="eyebrow reveal"><span />{t.eyebrow}</p><h1 className={lang === "ar" ? "arabic-hero-title" : undefined}>{lang === "ar" ? <><span>كن ضيفاً في</span><span>مناسبتك <em>الخاصة.</em></span></> : t.hero.map((line, i) => i === 2 ? <em key={line}>{line}</em> : <span key={line}>{line}</span>)}</h1><p className="lead">{t.intro}</p><div className="buttons">
-  <a className="pill dark font-ar-15" href="#contact">
+  <a className="pill dark font-ar-15" href="#contact" onClick={scrollToQuotationFormOnMobile}>
     {t.quote}
     <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" />
   </a>
@@ -285,7 +298,7 @@ const handleTouchEnd = () => {
 
       <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold font-ar-15" href="#contact">{t.quote} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div></section>
 
-      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date" /></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
+      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form id="quotation-form" onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date"  min={minDate}/></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
   {lightbox !== null && (
   <div
     className="lightbox"
