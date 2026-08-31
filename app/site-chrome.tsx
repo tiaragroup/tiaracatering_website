@@ -252,11 +252,9 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
      <a href={CALL_HREF} className="footer-phone">
   <span>{t.call}:</span>
   <span className="phone-number">{CALL_DISPLAY}</span>
-</a>
+        </a>
         <a href={EMAIL_HREF}>{EMAIL}</a>
         <a className="footer-address" href={LOCATION_MAP_URL} target="_blank" rel="noopener noreferrer">{t.location}</a>
-        {socialLinks.map(({ label, href }) => <a className="footer-social-link" href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`}><SocialIcon label={label} /><span>{label}</span></a>)}
-        <a className="footer-social-link" href={WHATSAPP_URL}><MessageCircle size={16} strokeWidth={1.7} aria-hidden="true" /><span>WhatsApp</span></a>
       </div>
      <div>
       <span>{t.explore}</span>
@@ -271,7 +269,13 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
         {t.privacy}
       </ChromeLink>
     </div>
-      <small>{t.rights}</small>
+      <div className="footer-bottom">
+        <small>{t.rights}</small>
+        <div className="footer-socials" aria-label={lang === "ar" ? "حسابات تيارا على منصات التواصل" : "Tiara Catering social media"}>
+          {socialLinks.map(({ label, href }) => <a className="footer-social-link" href={href} key={label} target="_blank" rel="noopener noreferrer" aria-label={`${label} — Tiara Catering`} title={label}><SocialIcon label={label} /></a>)}
+          <a className="footer-social-link" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp — Tiara Catering" title="WhatsApp"><MessageCircle size={17} strokeWidth={1.7} aria-hidden="true" /></a>
+        </div>
+      </div>
     </footer>
   </div>;
 }
