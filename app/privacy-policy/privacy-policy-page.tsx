@@ -9,6 +9,7 @@ import {
 } from "../contact-details";
 
 type Lang = "en" | "ar";
+const quotationReturnKey = (lang: Lang) => `tiara-quotation-return:${lang}`;
 
 const content = {
   en: {
@@ -428,7 +429,15 @@ export default function PrivacyPolicyPage({
 }) {
   const t = content[lang];
 
- 
+  function returnToPreviousContext(event: React.MouseEvent<HTMLAnchorElement>) {
+    try {
+      if (window.sessionStorage.getItem(quotationReturnKey(lang)) !== "true") return;
+      event.preventDefault();
+      window.history.back();
+    } catch {
+      // The regular homepage link remains available when storage is unavailable.
+    }
+  }
 
   return (
     <main className={`privacy-site ${lang}`} dir={t.dir}>
@@ -551,7 +560,7 @@ export default function PrivacyPolicyPage({
       </section>
 
       <div className="privacy-back">
-        <Link href={lang === "ar" ? "/ar" : "/"}>
+        <Link href={lang === "ar" ? "/ar" : "/"} onClick={returnToPreviousContext}>
           <span aria-hidden="true">{lang === "ar" ? "→" : "←"}</span>
           {t.back}
         </Link>

@@ -95,6 +95,14 @@ const touchEndX = useRef<number | null>(null);
     if (form) saveQuotationDraft(form);
     try {
       window.sessionStorage.setItem(quotationReturnKey(lang), "true");
+      // Give the homepage history entry an explicit destination. This survives both
+      // Next.js client navigation and the browser's back/forward cache without firing
+      // a hashchange (and therefore without moving the page before we leave it).
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.search}#quotation-form`,
+      );
     } catch {
       // Navigation should never be blocked by unavailable browser storage.
     }
@@ -245,6 +253,8 @@ const handleTouchEnd = () => {
       } catch {
         // Submission has succeeded, so storage cleanup is best-effort only.
       }
+      formElement.reset();
+      setEmailError("");
       setSubmission({ state: "success", reference });
       const value = (field: string) => String(data.get(field) || "-");
       const lines = lang === "ar"

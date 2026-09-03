@@ -730,3 +730,28 @@ html[lang="ar"] .eyebrow, .kicker
   font-size: 11px;
   line-height: 1.5;
 }
+
+.mobile-menu-backdrop {
+  display: none;
+}
+
+@media (max-width: 1040px) {
+  .mobile-menu-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: default;
+  }
+
+  .site-header {
+    z-index: 30;
+  }
+}
+
+.font-size-16{
+   font-size: 16px !important;
+}
