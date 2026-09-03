@@ -724,3 +724,9 @@ html[lang="ar"] .eyebrow, .kicker
 .service-arrow svg {
   display: block;
 }
+
+.field-error {
+  color: #a3382f;
+  font-size: 11px;
+  line-height: 1.5;
+}

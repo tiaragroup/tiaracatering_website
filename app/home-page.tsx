@@ -69,6 +69,7 @@ const copy = {
 
 export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   const t = copy[lang];
+  const [emailError, setEmailError] = useState("");
   const [activeService, setActiveService] = useState(0);
   const [quote, setQuote] = useState(0);
   const [submission, setSubmission] = useState<{ state: "idle" | "sending" | "success" | "error"; reference?: string }>({ state: "idle" });
@@ -358,7 +359,49 @@ const handleTouchEnd = () => {
 
       <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold font-ar-15" href="#quotation-form">{t.quote} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div></section>
 
-      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form id="quotation-form" onSubmit={submit} onInput={(event) => saveQuotationDraft(event.currentTarget)} onChange={(event) => saveQuotationDraft(event.currentTarget)}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date"  min={minDate}/></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"} onClick={rememberQuotationReturn}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
+      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form id="quotation-form" onSubmit={submit} onInput={(event) => saveQuotationDraft(event.currentTarget)} onChange={(event) => saveQuotationDraft(event.currentTarget)}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><div className="field">
+
+
+  <input
+    id="email"
+    name="email"
+    type="email"
+    autoComplete="email"
+    maxLength={254}
+    required
+    aria-invalid={emailError ? "true" : "false"}
+    aria-describedby={emailError ? "email-error" : undefined}
+    onInvalid={(e) => {
+      e.preventDefault();
+
+      const input = e.currentTarget;
+
+      if (input.validity.valueMissing) {
+        setEmailError(
+          lang === "ar"
+            ? "البريد الإلكتروني مطلوب"
+            : "Email address is required"
+        );
+        return;
+      }
+
+      if (input.validity.typeMismatch) {
+        setEmailError(
+          lang === "ar"
+            ? "يرجى إدخال بريد إلكتروني صحيح، مثال: name@example.com"
+            : "Please enter a valid email address, for example name@example.com"
+        );
+      }
+    }}
+    onInput={() => setEmailError("")}
+  />
+
+  {emailError && (
+    <small id="email-error" className="field-error">
+      {emailError}
+    </small>
+  )}
+</div></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date"  min={minDate}/></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"} onClick={rememberQuotationReturn}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
   {lightbox !== null && (
   <div
     className="lightbox"
