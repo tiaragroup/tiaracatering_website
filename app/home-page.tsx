@@ -6,6 +6,9 @@ import { CALL_DISPLAY, CALL_HREF, EMAIL, EMAIL_HREF, WHATSAPP_URL } from "./cont
 import { createQuotation } from "./quotation-service";
 
 type Lang = "en" | "ar";
+const quotationDraftKey = (lang: Lang) => `tiara-quotation-draft:${lang}`;
+const quotationReturnKey = (lang: Lang) => `tiara-quotation-return:${lang}`;
+
 const gallery = [
   "/images/tiara-catering-tables-showcase-event.webp",
   ...["1", "3", "8", "2", "4", "6"].map((n) => `/images/cooking-classes-${n}.jpg`),
@@ -72,6 +75,29 @@ export default function HomePage({ lang = "en" }: { lang?: Lang }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 const touchStartX = useRef<number | null>(null);
 const touchEndX = useRef<number | null>(null);
+
+  function saveQuotationDraft(form: HTMLFormElement) {
+    const draft: Record<string, string | boolean> = {};
+    for (const field of Array.from(form.elements)) {
+      if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) || !field.name) continue;
+      draft[field.name] = field instanceof HTMLInputElement && field.type === "checkbox" ? field.checked : field.value;
+    }
+    try {
+      window.sessionStorage.setItem(quotationDraftKey(lang), JSON.stringify(draft));
+    } catch {
+      // The form continues to work when browser storage is unavailable.
+    }
+  }
+
+  function rememberQuotationReturn(event: React.MouseEvent<HTMLAnchorElement>) {
+    const form = event.currentTarget.closest("form");
+    if (form) saveQuotationDraft(form);
+    try {
+      window.sessionStorage.setItem(quotationReturnKey(lang), "true");
+    } catch {
+      // Navigation should never be blocked by unavailable browser storage.
+    }
+  }
 const today = new Date();
 const minDate = [
   today.getFullYear(),
@@ -160,6 +186,34 @@ const handleTouchEnd = () => {
     const timer = window.setInterval(() => setQuote((q) => (q + 1) % t.testimonials.length), 7000);
     return () => window.clearInterval(timer);
   }, [t.testimonials.length]);
+
+  useEffect(() => {
+    const form = document.getElementById("quotation-form") as HTMLFormElement | null;
+    if (!form) return;
+
+    let shouldReturn = false;
+    try {
+      const saved = window.sessionStorage.getItem(quotationDraftKey(lang));
+      if (saved) {
+        const draft = JSON.parse(saved) as Record<string, string | boolean>;
+        for (const [name, value] of Object.entries(draft)) {
+          const field = form.elements.namedItem(name);
+          if (field instanceof HTMLInputElement && field.type === "checkbox") field.checked = value === true;
+          else if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) field.value = String(value);
+        }
+      }
+      shouldReturn = window.sessionStorage.getItem(quotationReturnKey(lang)) === "true";
+      if (shouldReturn) window.sessionStorage.removeItem(quotationReturnKey(lang));
+    } catch {
+      // Ignore malformed or unavailable session storage and leave the form usable.
+    }
+
+    if (!shouldReturn) return;
+    const scrollBack = () => form.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.requestAnimationFrame(scrollBack);
+    const timer = window.setTimeout(scrollBack, 450);
+    return () => window.clearTimeout(timer);
+  }, [lang]);
   // useEffect(() => {
   //   const close = (event: KeyboardEvent) => event.key === "Escape" && setLightbox(null);
   //   window.addEventListener("keydown", close);
@@ -184,6 +238,12 @@ const handleTouchEnd = () => {
         locale: lang,
         privacyAccepted: true,
       });
+      try {
+        window.sessionStorage.removeItem(quotationDraftKey(lang));
+        window.sessionStorage.removeItem(quotationReturnKey(lang));
+      } catch {
+        // Submission has succeeded, so storage cleanup is best-effort only.
+      }
       setSubmission({ state: "success", reference });
       const value = (field: string) => String(data.get(field) || "-");
       const lines = lang === "ar"
@@ -296,9 +356,9 @@ const handleTouchEnd = () => {
 
       <section className="testimonials"><div className="testimonial-aside"><p className="kicker">{t.testimonialTag}</p><h2>{t.testimonialTitle}</h2><div className="quote-dots">{t.testimonials.map((item, i) => <button key={item[1]} onClick={() => setQuote(i)} className={i === quote ? "active" : ""} aria-label={`${t.testimonialTag} ${i + 1}`} />)}</div></div><blockquote key={quote}><span>“</span><p>{t.testimonials[quote][0]}</p><footer><b className="font-ar-15">{t.testimonials[quote][1]}</b><small className="font-ar-15">{t.testimonials[quote][2]}</small></footer></blockquote></section>
 
-      <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold font-ar-15" href="#contact">{t.quote} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div></section>
+      <section className="conversion"><img src="/images/tiara-catering-tables-showcase.jpg" alt="" loading="lazy" /><div className="conversion-shade" /><div><p className="kicker">{t.ctaTag}</p><h2>{t.ctaTitle}</h2><p>{t.ctaBody}</p><a className="pill gold font-ar-15" href="#quotation-form">{t.quote} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div></section>
 
-      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form id="quotation-form" onSubmit={submit}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date"  min={minDate}/></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
+      <section id="contact" className="contact section"><div className="contact-intro"><p className="kicker">{t.contactTag}</p><h2>{t.formTitle}</h2><p>{t.ctaBody}</p><address><a style={{ direction:"ltr" }} href={CALL_HREF}>{CALL_DISPLAY}</a><a href={EMAIL_HREF}>{EMAIL}</a><span>{t.address}</span></address></div><form id="quotation-form" onSubmit={submit} onInput={(event) => saveQuotationDraft(event.currentTarget)} onChange={(event) => saveQuotationDraft(event.currentTarget)}><div className="field"><label htmlFor="name">{t.fields[0]}</label><input id="name" name="name" autoComplete="name" minLength={2} maxLength={100} required /></div><div className="field"><label htmlFor="phone">{t.fields[1]}</label><input id="phone" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></div><div className="field"><label htmlFor="email">{t.fields[2]}</label><input id="email" name="email" type="email" autoComplete="email" maxLength={254} /></div><div className="field"><label htmlFor="event">{t.fields[3]}</label><select id="event" name="event" required defaultValue=""><option value="" disabled>{t.eventOptions[0]}</option>{t.eventOptions.slice(1).map((option) => <option key={option}>{option}</option>)}</select></div><div className="field"><label htmlFor="date">{t.fields[4]}</label><input id="date" name="date" type="date"  min={minDate}/></div><div className="field"><label htmlFor="guests">{t.fields[5]}</label><input id="guests" name="guests" type="number" min="1" max="5000" inputMode="numeric" /></div><div className="field full"><label htmlFor="details">{t.fields[6]}</label><textarea id="details" name="details" rows={4} maxLength={2000} placeholder={t.details} /></div><label className="form-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"} onClick={rememberQuotationReturn}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><div className="form-submit"><button className="pill dark font-ar-15" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.response}</small></div></form></section>
   {lightbox !== null && (
   <div
     className="lightbox"
