@@ -162,6 +162,20 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   }, [lang, t.dir]);
 
   useEffect(() => {
+    const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    if (navigation?.type !== "reload" || !window.location.hash) return;
+
+    // A hard refresh starts a fresh visit: remove any section fragment and begin at
+    // the top, while leaving normal anchor clicks and back/forward navigation intact.
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}${window.location.search}`,
+    );
+    jumpTo(0);
+  }, []);
+
+  useEffect(() => {
     // Nothing else may move the page: the browser restores a position of its own measured
     // before the new page rendered, and it would otherwise win the race.
     history.scrollRestoration = "manual";
