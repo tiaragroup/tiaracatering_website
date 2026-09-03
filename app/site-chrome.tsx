@@ -149,6 +149,8 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   const committed = useRef(pathname);
   const here = useRef("");
   const pendingRestore = useRef<number | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+const menuButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const resolve = (href: string) => href.startsWith("#") && !onHome ? `${t.home}${href}` : href;
   // The menus page carries its own quotation builder; everywhere else the CTA leads to the contact form.
@@ -160,6 +162,28 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     document.documentElement.lang = lang;
     document.documentElement.dir = t.dir;
   }, [lang, t.dir]);
+
+  useEffect(() => {
+  if (!open) return;
+
+  const handleOutsideClick = (event: PointerEvent) => {
+    const target = event.target as Node;
+
+    // Don't close when clicking inside the menu
+    if (navRef.current?.contains(target)) return;
+
+    // Don't close when clicking the hamburger / X button
+    if (menuButtonRef.current?.contains(target)) return;
+
+    setOpen(false);
+  };
+
+  document.addEventListener("pointerdown", handleOutsideClick);
+
+  return () => {
+    document.removeEventListener("pointerdown", handleOutsideClick);
+  };
+}, [open]);
   useEffect(() => {
     // Nothing else may move the page: the browser restores a position of its own measured
     // before the new page rendered, and it would otherwise win the race.
@@ -232,14 +256,22 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
 
     <header className={scrolled ? "site-header scrolled" : "site-header"}>
       <ChromeLink className="brand" href={t.home} aria-label="Tiara Catering"><img src="/tiara-logo.png" alt="Tiara Catering" /></ChromeLink>
-      <nav className={open ? "nav open" : "nav"} aria-label={t.navLabel}>
+      <nav   ref={navRef} className={open ? "nav open" : "nav"} aria-label={t.navLabel}>
         {t.nav.map(([label, href]) => <ChromeLink href={resolve(href)} onClick={() => setOpen(false)} aria-current={href === pathname ? "page" : undefined} key={href}>{label}</ChromeLink>)}
         <ChromeLink className="mobile-quote" href={quoteHref} onClick={() => setOpen(false)}>{t.quote}</ChromeLink>
       </nav>
       <div className="header-actions">
         <ChromeLink className="language" href={counterpart(pathname)} hrefLang={lang === "ar" ? "en" : "ar"} aria-label={t.switchAria} onClick={() => setOpen(false)}>{t.switchLabel}</ChromeLink>
         <ChromeLink className="pill dark desktop-cta" href={quoteHref} onClick={() => setOpen(false)}>{t.quote}<span aria-hidden="true">↗</span></ChromeLink>
-        <button className="menu" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? t.close : t.menu}>{open ? "×" : "☰"}</button>
+       <button
+        ref={menuButtonRef}
+        className="menu"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-label={open ? t.close : t.menu}
+      >
+        {open ? "×" : "☰"}
+      </button>
       </div>
     </header>
 
