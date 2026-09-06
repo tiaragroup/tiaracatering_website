@@ -544,7 +544,7 @@ export default function PrivacyPolicyPage({
         </div>
 
         <address>
-          <a href={CALL_HREF}>
+          <a className="ar-phone-ltr" href={CALL_HREF}>
             <small>{lang === "ar" ? "الهاتف" : "Telephone"}</small>
             {CALL_DISPLAY}
           </a>

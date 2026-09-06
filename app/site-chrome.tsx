@@ -30,7 +30,7 @@ const chrome = {
       nav: [
         ["About", "#about"],
         ["Services", "#services"],
-        ["Menus", "/menus"],
+        // ["Menus", "/menus"],
         ["Gallery", "#gallery"],
         ["Houses", "#brands"],
         ["Contact", "#contact"],

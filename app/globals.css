@@ -682,6 +682,10 @@
 html[lang="ar"] .font-ar-15 {
   font-size: 15px;
 }
+html[lang="ar"] .ar-phone-ltr {
+  direction: ltr;
+  text-align: end;
+}
 
 html[lang="ar"] .font-ar-20 {
   font-size: 20px;
