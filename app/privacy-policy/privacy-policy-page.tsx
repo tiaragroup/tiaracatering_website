@@ -10,6 +10,7 @@ import {
 
 type Lang = "en" | "ar";
 const quotationReturnKey = (lang: Lang) => `tiara-quotation-return:${lang}`;
+const menuQuotationReturnKey = (lang: Lang) => `tiara-menu-quotation-return:${lang}`;
 
 const content = {
   en: {
@@ -431,7 +432,10 @@ export default function PrivacyPolicyPage({
 
   function returnToPreviousContext(event: React.MouseEvent<HTMLAnchorElement>) {
     try {
-      if (window.sessionStorage.getItem(quotationReturnKey(lang)) !== "true") return;
+      const cameFromQuotation =
+        window.sessionStorage.getItem(quotationReturnKey(lang)) === "true" ||
+        window.sessionStorage.getItem(menuQuotationReturnKey(lang)) === "true";
+      if (!cameFromQuotation) return;
       event.preventDefault();
       window.history.back();
     } catch {

@@ -731,6 +731,13 @@ html[lang="ar"] .eyebrow, .kicker
   line-height: 1.5;
 }
 
+.quote-builder .field-error {
+  color: #ffaaa2;
+  letter-spacing: 0;
+  text-align: start;
+  text-transform: none;
+}
+
 .mobile-menu-backdrop {
   display: none;
 }

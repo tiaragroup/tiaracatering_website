@@ -7,6 +7,8 @@ import { createQuotation } from "../quotation-service";
 import { countItems, faqsFor, formatNumber, type Lang, lowestPrice, menusFor } from "./menu-data";
 
 const DEFAULT_MENU = 1;
+const menuQuotationDraftKey = (lang: Lang) => `tiara-menu-quotation-draft:${lang}`;
+const menuQuotationReturnKey = (lang: Lang) => `tiara-menu-quotation-return:${lang}`;
 const subscribeToHash = (onChange: () => void) => { window.addEventListener("hashchange", onChange); return () => window.removeEventListener("hashchange", onChange); };
 const readHash = () => window.location.hash.slice(1);
 const readNoHash = () => "";
@@ -25,7 +27,7 @@ const ui = {
     dishes: "listed dishes & beverages", selections: "selections", courses: "courses",
     detailTag: "Full menu detail", detailTitle: "Everything included in", servingNote: "Menu selections and pricing are subject to availability and final event requirements.",
     quoteCardTag: "Build your enquiry", quoteCardTitle: "Get a tailored proposal", quoteCardBody: "Share the essentials and your request will be sent securely to Tiara’s event team.",
-    name: "Full name", phone: "Phone", email: "Email (optional)", guests: "Number of guests", date: "Event date", event: "Event type", eventOptions: ["Private gathering", "Corporate event", "Wedding or gala", "Special event", "Other"], note: "Anything we should know?", notePlaceholder: "Venue, dietary needs, service style…", send: "Request this menu", sending: "Submitting…", reply: "A Tiara event specialist will review your request.", success: "Request received. Your reference is", error: "We could not submit your request. Please try again.", consent: "I agree to the Privacy Policy and to being contacted about this request.",
+    name: "Full name", phone: "Phone", email: "Email", emailRequired: "Email address is required", emailInvalid: "Please enter a valid email address, for example name@example.com", guests: "Number of guests", date: "Event date", event: "Event type", eventOptions: ["Private gathering", "Corporate event", "Wedding or gala", "Special event", "Other"], note: "Anything we should know?", notePlaceholder: "Venue, dietary needs, service style…", send: "Request this menu", sending: "Submitting…", reply: "A Tiara event specialist will review your request.", success: "Request received. Your reference is", error: "We could not submit your request. Please try again.", consent: "I agree to the Privacy Policy and to being contacted about this request.",
     whyTag: "Why Tiara", whyTitle: <>A menu is only the <em>beginning.</em></>, why: [["Tailored guidance", "We help align the menu with your guests, venue and occasion."], ["One point of contact", "Clear coordination from the first conversation through event day."], ["Considered presentation", "Food, service and styling designed to feel like one experience."]],
     faqTag: "Good to know", faqTitle: "Before you request a quote",
     finalTitle: <>Your guests remember the feeling.<br /><em>Let’s shape it together.</em></>, finalBody: "Choose a menu, share your event details and let Tiara turn the brief into a considered proposal.",
@@ -42,7 +44,7 @@ const ui = {
     dishes: "طبقاً ومشروباً", selections: "اختياراً", courses: "أقسام",
     detailTag: "تفاصيل القائمة", detailTitle: "كل ما تتضمنه", servingNote: "اختيارات القوائم والأسعار خاضعة للتوفر ومتطلبات المناسبة النهائية.",
     quoteCardTag: "جهّز طلبك", quoteCardTitle: "احصل على عرض مخصص", quoteCardBody: "شاركنا المعلومات الأساسية وسيتم إرسال طلبك بأمان إلى فريق مناسبات تيارا.",
-    name: "الاسم الكامل", phone: "رقم الجوال", email: "البريد الإلكتروني (اختياري)", guests: "عدد الضيوف", date: "تاريخ المناسبة", event: "نوع المناسبة", eventOptions: ["لقاء خاص", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "أخرى"], note: "أي تفاصيل مهمة؟", notePlaceholder: "الموقع، الاحتياجات الغذائية، أسلوب الخدمة…", send: "اطلب هذه القائمة", sending: "جارٍ الإرسال…", reply: "سيقوم مختص مناسبات من تيارا بمراجعة طلبك.", success: "تم استلام طلبك. الرقم المرجعي", error: "تعذر إرسال طلبك. يرجى المحاولة مرة أخرى.", consent: "أوافق على سياسة الخصوصية وعلى التواصل معي بخصوص هذا الطلب.",
+    name: "الاسم الكامل", phone: "رقم الجوال", email: "البريد الإلكتروني", emailRequired: "البريد الإلكتروني مطلوب", emailInvalid: "يرجى إدخال بريد إلكتروني صحيح، مثال: name@example.com", guests: "عدد الضيوف", date: "تاريخ المناسبة", event: "نوع المناسبة", eventOptions: ["لقاء خاص", "فعالية شركة", "عرس أو حفل", "مناسبة خاصة", "أخرى"], note: "أي تفاصيل مهمة؟", notePlaceholder: "الموقع، الاحتياجات الغذائية، أسلوب الخدمة…", send: "اطلب هذه القائمة", sending: "جارٍ الإرسال…", reply: "سيقوم مختص مناسبات من تيارا بمراجعة طلبك.", success: "تم استلام طلبك. الرقم المرجعي", error: "تعذر إرسال طلبك. يرجى المحاولة مرة أخرى.", consent: "أوافق على سياسة الخصوصية وعلى التواصل معي بخصوص هذا الطلب.",
     whyTag: "لماذا تيارا", whyTitle: <>القائمة ليست سوى <em>البداية.</em></>, why: [["إرشاد مخصص", "نساعدك في مواءمة القائمة مع ضيوفك وموقعك ومناسبتك."], ["نقطة اتصال واحدة", "تنسيق واضح من المحادثة الأولى وحتى يوم المناسبة."], ["تقديم مدروس", "الطعام والخدمة والتنسيق مصممة لتبدو كتجربة واحدة."]],
     faqTag: "معلومات مهمة", faqTitle: "قبل طلب عرض السعر",
     finalTitle: <>يتذكر ضيوفك الإحساس.<br /><em>فلنصنعه معاً.</em></>, finalBody: "اختر قائمتك وشارك تفاصيل المناسبة ودع تيارا تحول فكرتك إلى عرض مدروس.",
@@ -57,6 +59,7 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
   const hash = useSyncExternalStore(subscribeToHash, readHash, readNoHash);
   const linked = menus.findIndex((pkg) => pkg.id === hash);
   const [picked, setPicked] = useState<number | null>(null);
+  const [emailError, setEmailError] = useState("");
   const [submission, setSubmission] = useState<{ state: "idle" | "sending" | "success" | "error"; reference?: string }>({ state: "idle" });
   const selected = picked ?? (linked >= 0 ? linked : DEFAULT_MENU);
   const menu = menus[selected];
@@ -65,8 +68,86 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
   const counts = menus.map(countItems);
   const fromPrice = lowestPrice(menus);
 
+  function saveQuotationDraft(form: HTMLFormElement) {
+    const fields: Record<string, string | boolean> = {};
+    for (const field of Array.from(form.elements)) {
+      if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) || !field.name) continue;
+      fields[field.name] = field instanceof HTMLInputElement && field.type === "checkbox" ? field.checked : field.value;
+    }
+
+    try {
+      window.sessionStorage.setItem(
+        menuQuotationDraftKey(lang),
+        JSON.stringify({ menuId: menu.id, fields }),
+      );
+    } catch {
+      // The enquiry remains usable when browser storage is unavailable.
+    }
+  }
+
+  function rememberQuotationReturn(event: React.MouseEvent<HTMLAnchorElement>) {
+    const form = event.currentTarget.closest("form");
+    if (form) saveQuotationDraft(form);
+
+    try {
+      window.sessionStorage.setItem(menuQuotationReturnKey(lang), "true");
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.search}#quotation`,
+      );
+    } catch {
+      // Navigation should never be blocked by unavailable browser storage.
+    }
+  }
+
   // Bookings cannot be made for a past date; set on the client so the prerendered HTML stays cacheable.
   useEffect(() => { if (dateInput.current) dateInput.current.min = localToday(); }, []);
+
+  useEffect(() => {
+    const form = document.querySelector<HTMLFormElement>("#quotation form");
+    if (!form) return;
+
+    let shouldReturn = false;
+    let menuFrame: number | undefined;
+    try {
+      const saved = window.sessionStorage.getItem(menuQuotationDraftKey(lang));
+      if (saved) {
+        const draft = JSON.parse(saved) as {
+          menuId?: string;
+          fields?: Record<string, string | boolean>;
+        };
+        const savedMenu = menusFor(lang).findIndex((item) => item.id === draft.menuId);
+        if (savedMenu >= 0) {
+          menuFrame = window.requestAnimationFrame(() => setPicked(savedMenu));
+        }
+
+        for (const [name, value] of Object.entries(draft.fields ?? {})) {
+          const field = form.elements.namedItem(name);
+          if (field instanceof HTMLInputElement && field.type === "checkbox") field.checked = value === true;
+          else if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) field.value = String(value);
+        }
+      }
+      shouldReturn = window.sessionStorage.getItem(menuQuotationReturnKey(lang)) === "true";
+      if (shouldReturn) window.sessionStorage.removeItem(menuQuotationReturnKey(lang));
+    } catch {
+      // Ignore malformed or unavailable storage and leave the form usable.
+    }
+
+    if (!shouldReturn) {
+      return () => {
+        if (menuFrame !== undefined) window.cancelAnimationFrame(menuFrame);
+      };
+    }
+    const quotation = document.getElementById("quotation");
+    const scrollBack = () => quotation?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.requestAnimationFrame(scrollBack);
+    const timer = window.setTimeout(scrollBack, 450);
+    return () => {
+      if (menuFrame !== undefined) window.cancelAnimationFrame(menuFrame);
+      window.clearTimeout(timer);
+    };
+  }, [lang]);
 
   function choose(index: number) {
     setPicked(index);
@@ -95,6 +176,14 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
         locale: lang,
         privacyAccepted: true,
       });
+      try {
+        window.sessionStorage.removeItem(menuQuotationDraftKey(lang));
+        window.sessionStorage.removeItem(menuQuotationReturnKey(lang));
+      } catch {
+        // Submission succeeded, so storage cleanup is best-effort only.
+      }
+      formElement.reset();
+      setEmailError("");
       setSubmission({ state: "success", reference });
       const value = (field: string) => String(form.get(field) || "-");
       const lines = lang === "ar"
@@ -137,7 +226,7 @@ export default function MenuPage({ lang = "en" }: { lang?: Lang }) {
 
     <section id="collection" className="menu-section menu-collection"><div className="menu-section-head"><div><p className="menu-kicker">{t.collectionTag}</p><h2>{t.collectionTitle}</h2></div><p>{t.collectionLead}</p></div><div className="package-grid">{menus.map((pkg, i) => <article id={pkg.id} className={`${selected === i ? "selected" : ""} ${i === 1 ? "featured" : ""}`} key={pkg.id}>{pkg.badge && <span className="package-badge">{pkg.badge}</span>}<small aria-hidden="true">0{i + 1}</small><h3>{pkg.name}</h3><div className="package-price"><span>{t.from}</span><strong>{num(pkg.price)}</strong></div><p>{t.fit[i]}</p><span className="package-count">{num(counts[i])} {t.dishes}</span><ul>{pkg.categories.map((category) => <li key={category.title}>{category.title}<span>{num(category.items.length)}</span></li>)}</ul><button type="button" aria-pressed={selected === i} onClick={() => choose(i)}>{selected === i ? t.selected : t.view}<span aria-hidden="true">{selected === i ? "✓" : "→"}</span></button></article>)}</div></section>
 
-    <section id="menu-detail" className="menu-detail"><div className="detail-heading" aria-live="polite"><p className="menu-kicker">{t.detailTag}</p><h2>{t.detailTitle} <em>{menu.name}</em></h2><div className="detail-meta"><span>{num(counts[selected])} {t.selections}</span><span>{num(menu.categories.length)} {t.courses}</span><span>{t.from} {num(menu.price)}</span></div></div><div className="detail-layout"><div className="course-list">{menu.categories.map((category, categoryIndex) => <section id={`${menu.id}-course-${categoryIndex}`} key={category.title}><header><span aria-hidden="true">0{categoryIndex + 1}</span><h3>{category.title}</h3><small>{num(category.items.length)}</small></header><ul>{category.items.map((item) => <li key={item}><span>{item}</span><i aria-hidden="true" /></li>)}</ul></section>)}</div><aside id="quotation" className="quote-builder"><p className="menu-kicker">{t.quoteCardTag}</p><h3>{t.quoteCardTitle}</h3><p>{t.quoteCardBody}</p><div className="chosen-menu"><span>{menu.name}</span><strong>{t.from} {num(menu.price)}</strong></div><form onSubmit={submit}><label>{t.name}<input className="font-size-16" name="name" autoComplete="name" minLength={2} maxLength={100} required /></label><label>{t.phone}<input className="font-size-16" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></label><label>{t.email}<input className="font-size-16" name="email" type="email" autoComplete="email" maxLength={254} /></label><label>{t.guests}<input className="font-size-16" name="guests" type="number" inputMode="numeric" min="1" max="5000" required placeholder="50" /></label><label>{t.date}<input className="font-size-16" ref={dateInput} name="date" type="date" required /></label><label>{t.event}<select className="font-size-16" name="event" required>{t.eventOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>{t.note}<textarea name="note" rows={3} maxLength={2000} placeholder={t.notePlaceholder} /></label><label className="quote-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><button className="menu-pill gold" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send}<span aria-hidden="true">↗</span></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.reply}</small></form></aside></div><p className="serving-note">{t.servingNote}</p></section>
+    <section id="menu-detail" className="menu-detail"><div className="detail-heading" aria-live="polite"><p className="menu-kicker">{t.detailTag}</p><h2>{t.detailTitle} <em>{menu.name}</em></h2><div className="detail-meta"><span>{num(counts[selected])} {t.selections}</span><span>{num(menu.categories.length)} {t.courses}</span><span>{t.from} {num(menu.price)}</span></div></div><div className="detail-layout"><div className="course-list">{menu.categories.map((category, categoryIndex) => <section id={`${menu.id}-course-${categoryIndex}`} key={category.title}><header><span aria-hidden="true">0{categoryIndex + 1}</span><h3>{category.title}</h3><small>{num(category.items.length)}</small></header><ul>{category.items.map((item) => <li key={item}><span>{item}</span><i aria-hidden="true" /></li>)}</ul></section>)}</div><aside id="quotation" className="quote-builder"><p className="menu-kicker">{t.quoteCardTag}</p><h3>{t.quoteCardTitle}</h3><p>{t.quoteCardBody}</p><div className="chosen-menu"><span>{menu.name}</span><strong>{t.from} {num(menu.price)}</strong></div><form onSubmit={submit} onInput={(event) => saveQuotationDraft(event.currentTarget)} onChange={(event) => saveQuotationDraft(event.currentTarget)}><label>{t.name}<input className="font-size-16" name="name" autoComplete="name" minLength={2} maxLength={100} required /></label><label>{t.phone}<input className="font-size-16" name="phone" type="tel" autoComplete="tel" minLength={7} maxLength={25} required /></label><label>{t.email}<input className="font-size-16" name="email" type="email" autoComplete="email" maxLength={254} required aria-invalid={emailError ? "true" : "false"} aria-describedby={emailError ? "menu-email-error" : undefined} onInvalid={(event) => { event.preventDefault(); setEmailError(event.currentTarget.validity.valueMissing ? t.emailRequired : t.emailInvalid); }} onInput={() => setEmailError("")} />{emailError && <small id="menu-email-error" className="field-error">{emailError}</small>}</label><label>{t.guests}<input className="font-size-16" name="guests" type="number" inputMode="numeric" min="1" max="5000" required placeholder="50" /></label><label>{t.date}<input className="font-size-16" ref={dateInput} name="date" type="date" required /></label><label>{t.event}<select className="font-size-16" name="event" required>{t.eventOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>{t.note}<textarea name="note" rows={3} maxLength={2000} placeholder={t.notePlaceholder} /></label><label className="quote-consent"><input name="privacy" type="checkbox" required /><span>{t.consent} <Link href={lang === "ar" ? "/ar/privacy-policy" : "/privacy-policy"} onClick={rememberQuotationReturn}>{lang === "ar" ? "اقرأ السياسة" : "Read the policy"}</Link></span></label><button className="menu-pill gold" type="submit" disabled={submission.state === "sending"}>{submission.state === "sending" ? t.sending : t.send}<span aria-hidden="true">↗</span></button><small className={`submission-message ${submission.state}`} aria-live="polite">{submission.state === "success" ? `${t.success}: ${submission.reference}` : submission.state === "error" ? t.error : t.reply}</small></form></aside></div><p className="serving-note">{t.servingNote}</p></section>
 
     <section className="menu-why menu-section"><div className="menu-section-head"><div><p className="menu-kicker">{t.whyTag}</p><h2>{t.whyTitle}</h2></div></div><div>{t.why.map(([title, desc], i) => <article key={title}><span aria-hidden="true">0{i + 1}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></section>
 
