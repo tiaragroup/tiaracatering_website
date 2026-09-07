@@ -319,7 +319,7 @@ const handleTouchEnd = () => {
   <ArrowUpRight size={17} strokeWidth={1.5} />
 </i></a>)}</div><figure><div className="service-image"><img src={t.services[activeService][2]} alt={t.services[activeService][0]} /></div><figcaption><span>0{activeService + 1}</span>{t.services[activeService][0]}</figcaption></figure></div></section>
 
-      <section className="signature"><div className="signature-copy"><p className="kicker">{t.signatureTag}</p><h2>{t.signatureTitle}</h2><p>{t.signatureBody}</p><a className="pill gold font-ar-15" href="#contact">{t.start} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div><div className="process">{t.process.map(([title, desc]) => <article key={title}><small></small><h3>{title}</h3><p className="font-ar-15">{desc}</p></article>)}</div></section>
+      <section className="signature"><div className="signature-copy"><p className="kicker">{t.signatureTag}</p><h2>{t.signatureTitle}</h2><p>{t.signatureBody}</p><a className="pill gold font-ar-15" href="#quotation-form">{t.start} <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" /></a></div><div className="process">{t.process.map(([title, desc]) => <article key={title}><small></small><h3>{title}</h3><p className="font-ar-15">{desc}</p></article>)}</div></section>
 
     <section id="gallery" className="gallery section-wide">
   <div className="section-head gallery-head">
