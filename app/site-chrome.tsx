@@ -88,8 +88,13 @@ const readScrolled = () => window.scrollY > 24;
 const readTopOfPage = () => false;
 
 const isArabic = (pathname: string) => pathname === "/ar" || pathname.startsWith("/ar/");
-// The language switch always lands on the same page in the other locale: /menus <-> /ar/menus.
-const counterpart = (pathname: string) => isArabic(pathname) ? pathname.slice(3) || "/" : pathname === "/" ? "/ar" : `/ar${pathname}`;
+// The language switch lands on the same page in the other locale. The exception is the
+// Arabic menus page: its English twin is unpublished (TG-1132/TG-1133) and /menus redirects
+// straight back to /ar/menus, so switching to English there would bounce the visitor to the
+// page they just left. Send them to the English home instead. Drop this case when
+// app/menus/page.tsx renders again.
+const counterpart = (pathname: string) =>
+  pathname === "/ar/menus" ? "/" : isArabic(pathname) ? pathname.slice(3) || "/" : pathname === "/" ? "/ar" : `/ar${pathname}`;
 
 // The router skips fixed-position elements when it looks for somewhere to scroll after a
 // navigation, and the fixed header is the first thing in the layout — so it leaves whatever
