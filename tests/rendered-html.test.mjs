@@ -137,24 +137,32 @@ test("prerenders a crawlable Arabic experience", async () => {
   assert.doesNotMatch(html, /\?lang=ar/);
 });
 
-test("prerenders conversion-focused English and Arabic menu pages", async () => {
-  const [englishResponse, arabicResponse] = await Promise.all([render("/menus"), render("/ar/menus")]);
-  assert.equal(englishResponse.status, 200);
+test("prerenders the Arabic menu page and keeps the English one unpublished", async () => {
+  const arabicResponse = await render("/ar/menus");
   assert.equal(arabicResponse.status, 200);
-  const [english, arabic] = await Promise.all([englishResponse.text(), arabicResponse.text()]);
-  assert.match(english, /Catering Menus 2026 \| Tiara Catering Riyadh/);
-  assert.match(english, /Menu One/);
-  assert.match(english, /<span>SAR<\/span><strong>283<\/strong>/);
-  assert.match(english, /Request quotation/);
-  assert.match(english, /application\/ld\+json/);
-  assert.match(english, /linkedin\.com\/company\/tiara-catering/);
-  assert.match(english, CALL_HREF);
-  assert.match(english, WHATSAPP_HREF);
-  assert.doesNotMatch(english, /966112733888|11 273 3888/);
-  assert.match(english, LOCATION_EN);
-  assert.match(arabic, LOCATION_AR);
-  assert.match(arabic, /x\.com\/Tiaracateriing/);
-  assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
+  const arabic = await arabicResponse.text();
+  assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦ \| ضيافة الرياض/);
   assert.match(arabic, /القائمة الأولى/);
+  assert.match(arabic, /<span>ر\.س<\/span><strong>٢٨٣<\/strong>/);
   assert.match(arabic, /اطلب عرض سعر/);
+  assert.match(arabic, /application\/ld\+json/);
+  assert.match(arabic, /linkedin\.com\/company\/tiara-catering/);
+  assert.match(arabic, /x\.com\/Tiaracateriing/);
+  assert.match(arabic, CALL_HREF);
+  assert.match(arabic, WHATSAPP_HREF);
+  assert.doesNotMatch(arabic, /966112733888|11 273 3888/);
+  assert.match(arabic, LOCATION_AR);
+
+  // The English menus page is deliberately unpublished (TG-1132/TG-1133): app/menus/page.tsx
+  // calls notFound(), so the export either omits menus.html or writes Next's 404 shell. Either
+  // is fine — what must never ship is indexable menu content on an unannounced route.
+  const englishResponse = await render("/menus");
+  if (englishResponse.status === 200) {
+    const english = await englishResponse.text();
+    assert.match(english, /__next_error__/, "/menus should serve the 404 shell while the English menus page is unpublished");
+    assert.doesNotMatch(english, /Menu One/);
+    assert.doesNotMatch(english, /rel="canonical" href="https:\/\/tiaracatering\.com\/menus"/);
+  } else {
+    assert.equal(englishResponse.status, 404);
+  }
 });
