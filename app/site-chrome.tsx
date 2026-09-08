@@ -30,7 +30,7 @@ const chrome = {
       nav: [
         ["About", "#about"],
         ["Services", "#services"],
-        // ["Menus", "/menus"],
+        ["Menus", "/menus"],
         ["Gallery", "#gallery"],
         ["Houses", "#brands"],
         ["Contact", "#contact"],
@@ -116,7 +116,12 @@ function settleAt(top: number) {
 
 // Hash targets live on the home page, so they are prefixed when the visitor is elsewhere.
 // Plain anchors keep same-page jumps free of a router navigation.
-function ChromeLink({ href, children, onClick, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
+// Arabic sizes chrome links through .font-ar-15. A link that brings its own class carries
+// its own type scale and opts out; everything else — nav and footer links alike — opts in.
+// Keying off className rather than off the hash/route branch is what keeps a route link such
+// as /ar/menus the same size as the hash links beside it.
+function ChromeLink({ href, children, onClick, className, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
+  const linkClass = className ?? "font-ar-15";
   if (href.startsWith("#")) {
     const followSection = (event: React.MouseEvent<HTMLAnchorElement>) => {
       onClick?.(event);
@@ -128,14 +133,14 @@ function ChromeLink({ href, children, onClick, ...rest }: AnchorHTMLAttributes<H
         document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
-    return <a href={href} className="font-ar-15" onClick={followSection} {...rest}>{children}</a>;
+    return <a href={href} className={linkClass} onClick={followSection} {...rest}>{children}</a>;
   }
   const navigate = (event: React.MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event);
     scrollPositions.set(locationKey(), window.scrollY);
     if (!href.includes("#")) jumpTo(0);
   };
-  return <Link href={href} onClick={navigate} {...rest}>{children}</Link>;
+  return <Link href={href} className={linkClass} onClick={navigate} {...rest}>{children}</Link>;
 }
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {

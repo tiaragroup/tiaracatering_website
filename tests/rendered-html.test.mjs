@@ -152,9 +152,19 @@ test("prerenders conversion-focused English and Arabic menu pages", async () => 
   assert.match(english, WHATSAPP_HREF);
   assert.doesNotMatch(english, /966112733888|11 273 3888/);
   assert.match(english, LOCATION_EN);
-  assert.match(arabic, LOCATION_AR);
-  assert.match(arabic, /x\.com\/Tiaracateriing/);
-  assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦/);
+  // The page is published again, so it must be indexable rather than the 404 shell it served
+  // while it was pulled (TG-1132/TG-1133).
+  assert.doesNotMatch(english, /__next_error__/);
+  assert.match(english, /rel="canonical" href="https:\/\/tiaracatering\.com\/menus"/);
+  assert.match(arabic, /قوائم تيارا للضيافة ٢٠٢٦ \| ضيافة الرياض/);
   assert.match(arabic, /القائمة الأولى/);
+  assert.match(arabic, /<span>ر\.س<\/span><strong>٢٨٣<\/strong>/);
   assert.match(arabic, /اطلب عرض سعر/);
+  assert.match(arabic, /application\/ld\+json/);
+  assert.match(arabic, /linkedin\.com\/company\/tiara-catering/);
+  assert.match(arabic, /x\.com\/Tiaracateriing/);
+  assert.match(arabic, CALL_HREF);
+  assert.match(arabic, WHATSAPP_HREF);
+  assert.doesNotMatch(arabic, /966112733888|11 273 3888/);
+  assert.match(arabic, LOCATION_AR);
 });

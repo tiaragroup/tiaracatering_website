@@ -536,12 +536,14 @@
   transform: translateY(-50%) scale(1.05);
 }
 
+/* Directional controls belong on the inline axis: in Arabic the gallery runs right-to-left,
+   so "previous" sits on the right and "next" on the left, matching the thumbnail order. */
 .lightbox-prev {
-  left: 24px;
+  inset-inline-start: 24px;
 }
 
 .lightbox-next {
-  right: 24px;
+  inset-inline-end: 24px;
 }
 
 .lightbox-close {
@@ -598,11 +600,11 @@
   }
 
   .lightbox-prev {
-    left: 10px;
+    inset-inline-start: 10px;
   }
 
   .lightbox-next {
-    right: 10px;
+    inset-inline-end: 10px;
   }
    .lightbox img {
     width: 100%;
