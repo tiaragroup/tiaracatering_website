@@ -30,5 +30,3 @@ The repository is ready for Firebase's native Next.js adapter:
 - Node.js 22 is declared in `package.json`.
 
 To deploy, create an App Hosting backend in the Firebase console, connect this repository, set this directory as the app root, and use `main` as the live branch. Firebase will run the native Next.js build automatically.
-
-The previous Sites/Vinext commands remain available as `npm run dev:sites`, `npm run build:sites`, and `npm run start:sites` for compatibility with the existing hosted preview.
