@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { lowestPrice, menusEn } from "./menu-data";
-import { notFound } from "next/navigation";
+import MenuPage from "./menu-page";
+import { lowestPrice, menuJsonLd, menusEn } from "./menu-data";
 
 export const metadata: Metadata = {
   title: "Catering Menus 2026 | Tiara Catering Riyadh",
@@ -32,5 +32,11 @@ export const metadata: Metadata = {
 };
 
 export default function MenusPage() {
-  notFound();
+  return <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(menuJsonLd("en")) }}
+    />
+    <MenuPage lang="en" />
+  </>;
 }
