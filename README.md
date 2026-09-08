@@ -24,7 +24,7 @@ This creates a native Next.js production build, starts it locally, and verifies 
 The repository is ready for Firebase's native Next.js adapter:
 
 - `npm run build` runs `next build`.
-- `npm run start` runs `next start`.
+- `npm run start` runs `firebase emulators:start --only hosting`, which serves the exported `out/` directory locally the way Hosting does. It is not `next start`: `next.config.mjs` sets `output: "export"`, so there is no server to start.
 - `apphosting.yaml` defines the Cloud Run runtime limits.
 - `package-lock.json` is committed so App Hosting can detect and reproduce the framework build.
 - Node.js 22 is declared in `package.json`.
