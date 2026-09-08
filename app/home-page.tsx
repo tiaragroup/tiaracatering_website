@@ -144,16 +144,19 @@ const handleTouchEnd = () => {
     return;
   }
 
-  const distance = touchStartX.current - touchEndX.current;
+  // The gallery runs right-to-left in Arabic, so the gesture that advances it is the
+  // mirror of the English one. Flipping the sign keeps swipe and arrows in agreement.
+  const inlineDirection = lang === "ar" ? -1 : 1;
+  const distance = (touchStartX.current - touchEndX.current) * inlineDirection;
 
   // Prevent tiny movements from changing image
   const minimumSwipeDistance = 50;
 
   if (distance > minimumSwipeDistance) {
-    // Swipe left → next
+    // Swipe towards the end of the inline axis → next
     nextImage();
   } else if (distance < -minimumSwipeDistance) {
-    // Swipe right → previous
+    // Swipe towards the start of the inline axis → previous
     previousImage();
   }
 
@@ -437,7 +440,7 @@ const handleTouchEnd = () => {
       }
       onClick={previousImage}
     >
-      ←
+      {lang === "ar" ? "→" : "←"}
     </button>
 
     <div className="lightbox-image-wrapper">
@@ -460,10 +463,12 @@ const handleTouchEnd = () => {
       }
       onClick={nextImage}
     >
-      →
+      {lang === "ar" ? "←" : "→"}
     </button>
 
-    <div className="lightbox-counter">
+    {/* "1 / 7" is a numeric run, not prose: the slash is bidi-neutral, so an RTL paragraph
+        renders it as "7 / 1". Isolating the counter as LTR keeps position before total. */}
+    <div className="lightbox-counter" dir="ltr">
       {lightbox + 1} / {gallery.length}
     </div>
   </div>
