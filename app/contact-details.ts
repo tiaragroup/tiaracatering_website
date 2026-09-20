@@ -2,7 +2,7 @@ export const CALL_NUMBER = "966114885165";
 export const CALL_DISPLAY = "011 488 5165";
 export const CALL_HREF = `tel:${CALL_NUMBER}`;
 
-export const WHATSAPP_NUMBER = "966114885165";
+export const WHATSAPP_NUMBER = "966920005600";
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 
 export const EMAIL = "info@tiaracatering.com";
